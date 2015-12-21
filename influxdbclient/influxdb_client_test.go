@@ -1,11 +1,11 @@
-package datadogclient_test
+package influxdbclient_test
 
 import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/cloudfoundry-incubator/datadog-firehose-nozzle/datadogclient"
+	"github.com/evoila/influxdb-firehose-nozzle/datadogclient"
 
 	"github.com/cloudfoundry/sonde-go/events"
 	"github.com/gogo/protobuf/proto"

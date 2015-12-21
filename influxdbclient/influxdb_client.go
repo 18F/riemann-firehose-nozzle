@@ -1,4 +1,4 @@
-package datadogclient
+package influxdbclient
 
 import (
 	"bytes"
@@ -8,15 +8,18 @@ import (
 	"time"
 
 	"errors"
-	"github.com/cloudfoundry/sonde-go/events"
 	"log"
+
+	"github.com/cloudfoundry/sonde-go/events"
 )
 
-const DefaultAPIURL = "https://app.datadoghq.com/api/v1"
+const url = "https://app.datadoghq.com/api/v1"
 
 type Client struct {
-	apiURL                string
-	apiKey                string
+	url                   string
+	database              string
+	user                  string
+	password              string
 	metricPoints          map[metricKey]metricValue
 	prefix                string
 	deployment            string
@@ -40,7 +43,13 @@ type metricValue struct {
 }
 
 type Payload struct {
-	Series []Metric `json:"series"`
+	Series []InfluxDbData `json:"series"`
+}
+
+type InfluxDbData struct {
+	Name    string      `json:"name"`
+	Columns []string    `json:"columns"`
+	Points  [][]float64 `json:"points"`
 }
 
 type Metric struct {
@@ -56,10 +65,12 @@ type Point struct {
 	Value     float64
 }
 
-func New(apiURL string, apiKey string, prefix string, deployment string, ip string) *Client {
+func New(url string, database string, user string, password string, prefix string, deployment string, ip string) *Client {
 	return &Client{
-		apiURL:       apiURL,
-		apiKey:       apiKey,
+		url:          url,
+		database:     database,
+		user:         user,
+		password:     password,
 		metricPoints: make(map[metricKey]metricValue),
 		prefix:       prefix,
 		deployment:   deployment,
@@ -125,7 +136,8 @@ func (c *Client) PostMetrics() error {
 }
 
 func (c *Client) seriesURL() string {
-	url := fmt.Sprintf("%s?api_key=%s", c.apiURL, c.apiKey)
+	url := fmt.Sprintf("%s/%s/series?u=%s&p=%s", c.url, c.database, c.user, c.password)
+	log.Print("Using the following influx URL " + url)
 	return url
 }
 
@@ -149,18 +161,28 @@ func (c *Client) containsSlowConsumerAlert() bool {
 }
 
 func (c *Client) formatMetrics() ([]byte, uint64) {
-	metrics := []Metric{}
+	metrics := []InfluxDbData{}
 	for key, mVal := range c.metricPoints {
-		metrics = append(metrics, Metric{
-			Metric: c.prefix + key.name,
-			Points: mVal.points,
-			Type:   "gauge",
-			Tags:   mVal.tags,
+		metrics = append(metrics, InfluxDbData{
+			Name:    c.prefix + key.name,
+			Columns: []string{"time", "value"},
+			Points:  convertPoints(mVal.points),
 		})
 	}
 
-	encodedMetric, _ := json.Marshal(Payload{Series: metrics})
+	encodedMetric, _ := json.Marshal(metrics)
 	return encodedMetric, uint64(len(metrics))
+}
+
+func convertPoints(points []Point) [][]float64 {
+	newPoints := [][]float64{}
+	for _, point := range points {
+		newPoints = append(newPoints, []float64{
+			float64(point.Timestamp),
+			point.Value,
+		})
+	}
+	return newPoints
 }
 
 func (c *Client) addInternalMetric(name string, value uint64) {

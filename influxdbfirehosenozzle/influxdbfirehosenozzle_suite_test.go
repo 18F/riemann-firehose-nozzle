@@ -1,4 +1,4 @@
-package datadogclient_test
+package influxdbfirehosenozzle_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -9,9 +9,9 @@ import (
 	"testing"
 )
 
-func TestDatadogclient(t *testing.T) {
+func TestDatadogfirehosenozzle(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "DatadogClient Suite")
+	RunSpecs(t, "DatadogFirehoseNozzle Suite")
 }
 
 var _ = BeforeSuite(func() {

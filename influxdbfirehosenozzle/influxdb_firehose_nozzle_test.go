@@ -1,16 +1,16 @@
-package datadogfirehosenozzle_test
+package influxdbfirehosenozzle_test
 
 import (
-	. "github.com/cloudfoundry-incubator/datadog-firehose-nozzle/testhelpers"
+	. "github.com/evoila/influxdb-firehose-nozzle/testhelpers"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
 	"encoding/json"
 	"fmt"
-	"github.com/cloudfoundry-incubator/datadog-firehose-nozzle/datadogclient"
-	"github.com/cloudfoundry-incubator/datadog-firehose-nozzle/datadogfirehosenozzle"
-	"github.com/cloudfoundry-incubator/datadog-firehose-nozzle/nozzleconfig"
-	"github.com/cloudfoundry-incubator/datadog-firehose-nozzle/uaatokenfetcher"
+	"github.com/evoila/influxdb-firehose-nozzle/datadogclient"
+	"github.com/evoila/influxdb-firehose-nozzle/datadogfirehosenozzle"
+	"github.com/evoila/influxdb-firehose-nozzle/nozzleconfig"
+	"github.com/evoila/influxdb-firehose-nozzle/uaatokenfetcher"
 	"github.com/cloudfoundry/sonde-go/events"
 	"github.com/gogo/protobuf/proto"
 	"github.com/gorilla/websocket"

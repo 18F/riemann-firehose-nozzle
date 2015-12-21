@@ -1,9 +1,9 @@
 package uaatokenfetcher_test
 
 import (
-	"github.com/cloudfoundry-incubator/datadog-firehose-nozzle/uaatokenfetcher"
+	"github.com/evoila/influxdb-firehose-nozzle/uaatokenfetcher"
 
-	"github.com/cloudfoundry-incubator/datadog-firehose-nozzle/testhelpers"
+	"github.com/evoila/influxdb-firehose-nozzle/testhelpers"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

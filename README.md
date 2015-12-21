@@ -11,7 +11,7 @@ The datadog firehose nozzle requires a UAA user who is authorized to access the 
 properties:
   uaa:
     clients:
-      datadog-firehose-nozzle:
+      influxdb-firehose-nozzle:
         access-token-validity: 1209600
         authorized-grant-types: authorization_code,client_credentials,refresh_token
         override: true
@@ -26,7 +26,7 @@ The datadog nozzle uses a configuration file to obtain the firehose URL, datadog
 
 You can start the firehose nozzle by executing:
 ```
-go run main.go -config config/datadog-firehose-nozzle.json"
+go run main.go -config config/influxdb-firehose-nozzle.json"
 ```
 
 ### Batching

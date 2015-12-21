@@ -1,7 +1,7 @@
 package nozzleconfig_test
 
 import (
-	"github.com/cloudfoundry-incubator/datadog-firehose-nozzle/nozzleconfig"
+	"github.com/evoila/influxdb-firehose-nozzle/nozzleconfig"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"os"

@@ -4,17 +4,18 @@ import (
 	"flag"
 	"log"
 
-	"github.com/cloudfoundry-incubator/datadog-firehose-nozzle/datadogfirehosenozzle"
-	"github.com/cloudfoundry-incubator/datadog-firehose-nozzle/nozzleconfig"
-	"github.com/cloudfoundry-incubator/datadog-firehose-nozzle/uaatokenfetcher"
 	"os"
 	"os/signal"
 	"runtime/pprof"
 	"syscall"
+
+	"github.com/evoila/influxdb-firehose-nozzle/influxdbfirehosenozzle"
+	"github.com/evoila/influxdb-firehose-nozzle/nozzleconfig"
+	"github.com/evoila/influxdb-firehose-nozzle/uaatokenfetcher"
 )
 
 func main() {
-	configFilePath := flag.String("config", "config/datadog-firehose-nozzle.json", "Location of the nozzle config json file")
+	configFilePath := flag.String("config", "config/influxdb-firehose-nozzle.json", "Location of the nozzle config json file")
 	flag.Parse()
 
 	config, err := nozzleconfig.Parse(*configFilePath)
@@ -33,8 +34,8 @@ func main() {
 	defer close(threadDumpChan)
 	go dumpGoRoutine(threadDumpChan)
 
-	datadog_nozzle := datadogfirehosenozzle.NewDatadogFirehoseNozzle(config, tokenFetcher)
-	datadog_nozzle.Start()
+	influxDbNozzle := influxdbfirehosenozzle.NewInfluxDbFirehoseNozzle(config, tokenFetcher)
+	influxDbNozzle.Start()
 }
 
 func registerGoRoutineDumpSignalChannel() chan os.Signal {
