@@ -2,9 +2,9 @@ package influxdbclient
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"errors"
@@ -12,8 +12,6 @@ import (
 
 	"github.com/cloudfoundry/sonde-go/events"
 )
-
-const url = "https://app.datadoghq.com/api/v1"
 
 type Client struct {
 	url                   string
@@ -40,16 +38,6 @@ type metricKey struct {
 type metricValue struct {
 	tags   []string
 	points []Point
-}
-
-type Payload struct {
-	Series []InfluxDbData `json:"series"`
-}
-
-type InfluxDbData struct {
-	Name    string      `json:"name"`
-	Columns []string    `json:"columns"`
-	Points  [][]float64 `json:"points"`
 }
 
 type Metric struct {
@@ -126,7 +114,7 @@ func (c *Client) PostMetrics() error {
 
 	defer resp.Body.Close()
 	if resp.StatusCode >= 300 || resp.StatusCode < 200 {
-		return fmt.Errorf("datadog request returned HTTP response: %s", resp.Status)
+		return fmt.Errorf("InfluxDB request returned HTTP response: %s", resp.Status)
 	}
 
 	c.totalMetricsSent += metricsCount
@@ -136,7 +124,7 @@ func (c *Client) PostMetrics() error {
 }
 
 func (c *Client) seriesURL() string {
-	url := fmt.Sprintf("%s/%s/series?u=%s&p=%s", c.url, c.database, c.user, c.password)
+	url := fmt.Sprintf("%s/write?db=%s", c.url, c.database)
 	log.Print("Using the following influx URL " + url)
 	return url
 }
@@ -161,28 +149,52 @@ func (c *Client) containsSlowConsumerAlert() bool {
 }
 
 func (c *Client) formatMetrics() ([]byte, uint64) {
-	metrics := []InfluxDbData{}
+	var buffer bytes.Buffer
+
 	for key, mVal := range c.metricPoints {
-		metrics = append(metrics, InfluxDbData{
-			Name:    c.prefix + key.name,
-			Columns: []string{"time", "value"},
-			Points:  convertPoints(mVal.points),
-		})
+		buffer.WriteString(c.prefix + key.name)
+		buffer.WriteString(",")
+		buffer.WriteString(formatTags(mVal.tags))
+		buffer.WriteString(" ")
+		buffer.WriteString(formatValues(mVal.points))
+		buffer.WriteString(" ")
+		buffer.WriteString(formatTimestamp(mVal.points))
+		buffer.WriteString("\n")
 	}
 
-	encodedMetric, _ := json.Marshal(metrics)
-	return encodedMetric, uint64(len(metrics))
+	return buffer.Bytes(), uint64(len(c.metricPoints))
 }
 
-func convertPoints(points []Point) [][]float64 {
-	newPoints := [][]float64{}
-	for _, point := range points {
-		newPoints = append(newPoints, []float64{
-			float64(point.Timestamp),
-			point.Value,
-		})
+func formatTags(tags []string) string {
+	var newTags string
+	for index, tag := range tags {
+		if index > 0 {
+			newTags += ","
+		}
+
+		newTags += tag
+	}
+	return newTags
+}
+
+func formatValues(points []Point) string {
+	var newPoints string
+	for index, point := range points {
+		if index > 0 {
+			newPoints += ","
+		}
+
+		newPoints += "value=" + strconv.FormatFloat(point.Value, 'f', -1, 64)
 	}
 	return newPoints
+}
+
+func formatTimestamp(points []Point) string {
+	if len(points) > 0 {
+		return strconv.FormatInt(points[0].Timestamp*1000*1000*1000, 10)
+	} else {
+		return strconv.FormatInt(time.Now().Unix()*1000*1000*1000, 10)
+	}
 }
 
 func (c *Client) addInternalMetric(name string, value uint64) {
@@ -199,8 +211,8 @@ func (c *Client) addInternalMetric(name string, value uint64) {
 
 	mValue := metricValue{
 		tags: []string{
-			fmt.Sprintf("ip:%s", c.ip),
-			fmt.Sprintf("deployment:%s", c.deployment),
+			fmt.Sprintf("ip=%s", c.ip),
+			fmt.Sprintf("deployment=%s", c.deployment),
 		},
 		points: []Point{point},
 	}
@@ -243,7 +255,7 @@ func getTags(envelope *events.Envelope) []string {
 
 func appendTagIfNotEmpty(tags []string, key string, value string) []string {
 	if value != "" {
-		tags = append(tags, fmt.Sprintf("%s:%s", key, value))
+		tags = append(tags, fmt.Sprintf("%s=%s", key, value))
 	}
 	return tags
 }
