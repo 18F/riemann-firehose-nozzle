@@ -4,7 +4,7 @@
   "Password": "c1oudc0w",
   "TrafficControllerURL": "wss://doppler.onevoila.rocks:4443",
   "FirehoseSubscriptionID": "influxdb-firehose-nozzle",
-  "InfluxDbUrl": "http://88.198.249.61:8086",
+  "InfluxDbUrl": "http://localhost:8086",
   "InfluxDbDatabase": "cloudfoundry",
   "InfluxDbUser": "admin",
   "InfluxDbPassword": "c1oudc0w",
