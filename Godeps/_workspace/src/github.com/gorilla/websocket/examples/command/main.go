@@ -15,7 +15,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/gorilla/websocket"
+	"github.com/gorilla/websocket"
 )
 
 var (

@@ -3,7 +3,8 @@ package localip_test
 import (
 	"net"
 
-	"github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/pivotal-golang/localip"
+	"github.com/pivotal-golang/localip"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/cloudfoundry/noaa"
+	"github.com/cloudfoundry/noaa"
 )
 
 var dopplerAddress = os.Getenv("DOPPLER_ADDR")

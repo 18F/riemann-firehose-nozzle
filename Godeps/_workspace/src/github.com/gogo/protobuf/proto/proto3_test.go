@@ -34,9 +34,9 @@ package proto_test
 import (
 	"testing"
 
-	"github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/gogo/protobuf/proto"
-	pb "github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/gogo/protobuf/proto/proto3_proto"
-	tpb "github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/gogo/protobuf/proto/testdata"
+	"github.com/gogo/protobuf/proto"
+	pb "github.com/gogo/protobuf/proto/proto3_proto"
+	tpb "github.com/gogo/protobuf/proto/testdata"
 )
 
 func TestProto3ZeroValues(t *testing.T) {

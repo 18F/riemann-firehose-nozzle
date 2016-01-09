@@ -1,10 +1,10 @@
 {
 	"ImportPath": "github.com/evoila/influxdb-firehose-nozzle",
-	"GoVersion": "go1.5.2",
+	"GoVersion": "go1.4",
 	"Deps": [
 		{
 			"ImportPath": "github.com/cloudfoundry-incubator/uaago",
-			"Rev": "5253fdf54e4a464366e5ffa8e5f456f5f1e50a2f"
+			"Rev": "1627a524bb8637bae9bbb61c42593db3e436d08f"
 		},
 		{
 			"ImportPath": "github.com/cloudfoundry/noaa",
@@ -16,8 +16,8 @@
 		},
 		{
 			"ImportPath": "github.com/gogo/protobuf/proto",
-			"Comment": "v0.1-108-g9dc5109",
-			"Rev": "9dc510915846dd5a05607d3b5bf41f5ca5cce972"
+			"Comment": "v0.1-113-g7b13315",
+			"Rev": "7b1331554dbe882cb3613ee8f1824a5583627963"
 		},
 		{
 			"ImportPath": "github.com/gorilla/websocket",
