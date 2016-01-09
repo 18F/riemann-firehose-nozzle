@@ -1,0 +1,31 @@
+{
+	"ImportPath": "github.com/evoila/influxdb-firehose-nozzle",
+	"GoVersion": "go1.5.2",
+	"Deps": [
+		{
+			"ImportPath": "github.com/cloudfoundry-incubator/uaago",
+			"Rev": "5253fdf54e4a464366e5ffa8e5f456f5f1e50a2f"
+		},
+		{
+			"ImportPath": "github.com/cloudfoundry/noaa",
+			"Rev": "d641e200549236db2f9d50646ee47b8bac20c7dd"
+		},
+		{
+			"ImportPath": "github.com/cloudfoundry/sonde-go/events",
+			"Rev": "3d364d9ed49fee2f9fdcba278199127462cae3c4"
+		},
+		{
+			"ImportPath": "github.com/gogo/protobuf/proto",
+			"Comment": "v0.1-108-g9dc5109",
+			"Rev": "9dc510915846dd5a05607d3b5bf41f5ca5cce972"
+		},
+		{
+			"ImportPath": "github.com/gorilla/websocket",
+			"Rev": "3986be78bf859e01f01af631ad76da5b269d270c"
+		},
+		{
+			"ImportPath": "github.com/pivotal-golang/localip",
+			"Rev": "eca2e05f8384dd47fd88604af5bcf2321fa6d15e"
+		}
+	]
+}
