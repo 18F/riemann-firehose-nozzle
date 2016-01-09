@@ -34,9 +34,10 @@ package proto_test
 import (
 	"testing"
 
-	"github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/gogo/protobuf/proto"
-	proto3pb "github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/gogo/protobuf/proto/proto3_proto"
-	pb "github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/gogo/protobuf/proto/testdata"
+	"github.com/gogo/protobuf/proto"
+
+	proto3pb "github.com/gogo/protobuf/proto/proto3_proto"
+	pb "github.com/gogo/protobuf/proto/testdata"
 )
 
 var cloneTestMessage = &pb.MyMessage{

@@ -44,8 +44,8 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/gogo/protobuf/proto"
-	. "github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/gogo/protobuf/proto/testdata"
+	. "github.com/gogo/protobuf/proto"
+	. "github.com/gogo/protobuf/proto/testdata"
 )
 
 var globalO *Buffer

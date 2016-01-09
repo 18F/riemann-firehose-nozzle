@@ -16,10 +16,10 @@ import (
 	"sync"
 	"time"
 
-	noaa_errors "github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/cloudfoundry/noaa/errors"
-	"github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/cloudfoundry/sonde-go/events"
-	"github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/gogo/protobuf/proto"
-	"github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/gorilla/websocket"
+	noaa_errors "github.com/cloudfoundry/noaa/errors"
+	"github.com/cloudfoundry/sonde-go/events"
+	"github.com/gogo/protobuf/proto"
+	"github.com/gorilla/websocket"
 )
 
 var (

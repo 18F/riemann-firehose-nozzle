@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/cloudfoundry/noaa"
-	"github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/cloudfoundry/sonde-go/events"
+	"github.com/cloudfoundry/noaa"
+	"github.com/cloudfoundry/sonde-go/events"
 )
 
 var dopplerAddress = os.Getenv("DOPPLER_ADDR")

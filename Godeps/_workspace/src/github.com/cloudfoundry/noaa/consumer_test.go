@@ -13,10 +13,11 @@ import (
 
 	"github.com/cloudfoundry/loggregatorlib/loggertesthelper"
 	"github.com/cloudfoundry/loggregatorlib/server/handlers"
-	"github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/cloudfoundry/noaa"
-	noaa_errors "github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/cloudfoundry/noaa/errors"
-	"github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/cloudfoundry/sonde-go/events"
-	"github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/gogo/protobuf/proto"
+	"github.com/cloudfoundry/noaa"
+	noaa_errors "github.com/cloudfoundry/noaa/errors"
+	"github.com/cloudfoundry/sonde-go/events"
+	"github.com/gogo/protobuf/proto"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

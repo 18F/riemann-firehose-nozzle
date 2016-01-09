@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/cloudfoundry-incubator/uaago"
+	"github.com/cloudfoundry-incubator/uaago"
 )
 
 func main() {

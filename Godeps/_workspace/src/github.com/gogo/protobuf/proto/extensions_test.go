@@ -36,8 +36,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/gogo/protobuf/proto"
-	pb "github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/gogo/protobuf/proto/testdata"
+	"github.com/gogo/protobuf/proto"
+	pb "github.com/gogo/protobuf/proto/testdata"
 )
 
 func TestGetExtensionsWithMissingExtensions(t *testing.T) {

@@ -39,7 +39,7 @@ It has these top-level messages:
 */
 package testdata
 
-import proto "github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/gogo/protobuf/proto"
+import proto "github.com/gogo/protobuf/proto"
 import fmt "fmt"
 import math "math"
 

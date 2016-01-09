@@ -5,7 +5,7 @@
 package main
 
 import (
-	"github.com/evoila/influxdb-firehose-nozzle/Godeps/_workspace/src/github.com/gorilla/websocket"
+	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
 	"time"
