@@ -46,8 +46,8 @@ func (d *InfluxDbFirehoseNozzle) Start() error {
 	log.Print("Starting InfluxDb Firehose Nozzle...")
 	d.createClient()
 	d.consumeFirehose(authToken)
-	err := d.postToDatadog()
-	log.Print("DataDog Firehose Nozzle shutting down...")
+	err := d.postToInfluxDb()
+	log.Print("InfluxDb Firehose Nozzle shutting down...")
 	return err
 }
 
@@ -70,7 +70,7 @@ func (d *InfluxDbFirehoseNozzle) consumeFirehose(authToken string) {
 	go d.consumer.Firehose(d.config.FirehoseSubscriptionID, authToken, d.messages, d.errs)
 }
 
-func (d *InfluxDbFirehoseNozzle) postToDatadog() error {
+func (d *InfluxDbFirehoseNozzle) postToInfluxDb() error {
 	ticker := time.NewTicker(time.Duration(d.config.FlushDurationSeconds) * time.Second)
 	for {
 		select {

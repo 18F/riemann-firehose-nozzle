@@ -1,0 +1,1 @@
+web: inflxudb-firehose-nozzle

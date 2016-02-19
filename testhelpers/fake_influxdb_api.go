@@ -6,31 +6,31 @@ import (
 	"net/http/httptest"
 )
 
-type FakeDatadogAPI struct {
+type FakeInfluxDbAPI struct {
 	server           *httptest.Server
 	ReceivedContents chan []byte
 }
 
-func NewFakeDatadogAPI() *FakeDatadogAPI {
-	return &FakeDatadogAPI{
+func NewFakeInfluxDbAPI() *FakeInfluxDbAPI {
+	return &FakeInfluxDbAPI{
 		ReceivedContents: make(chan []byte, 100),
 	}
 }
 
-func (f *FakeDatadogAPI) Start() {
+func (f *FakeInfluxDbAPI) Start() {
 	f.server = httptest.NewUnstartedServer(f)
 	f.server.Start()
 }
 
-func (f *FakeDatadogAPI) Close() {
+func (f *FakeInfluxDbAPI) Close() {
 	f.server.Close()
 }
 
-func (f *FakeDatadogAPI) URL() string {
+func (f *FakeInfluxDbAPI) URL() string {
 	return f.server.URL
 }
 
-func (f *FakeDatadogAPI) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+func (f *FakeInfluxDbAPI) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	contents, _ := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 

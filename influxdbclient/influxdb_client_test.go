@@ -5,15 +5,16 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/evoila/influxdb-firehose-nozzle/datadogclient"
+	"github.com/evoila/influxdb-firehose-nozzle/influxdbclient"
 
 	"github.com/cloudfoundry/sonde-go/events"
 	"github.com/gogo/protobuf/proto"
 
 	"encoding/json"
+	"time"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"time"
 )
 
 var bodies [][]byte
@@ -30,7 +31,7 @@ var _ = Describe("DatadogClient", func() {
 	})
 
 	It("ignores messages that aren't value metrics or counter events", func() {
-		c := datadogclient.New(ts.URL, "dummykey", "datadog.nozzle.", "test-deployment", "dummy-ip")
+		c := influxdbclient.New(ts.URL, "testdb", "user", "password", "influxdb.nozzle.", "test-deployment", "dummy-ip")
 
 		c.AddMetric(&events.Envelope{
 			Origin:    proto.String("origin"),
@@ -64,7 +65,7 @@ var _ = Describe("DatadogClient", func() {
 		Expect(err).ToNot(HaveOccurred())
 
 		Eventually(bodies).Should(HaveLen(1))
-		var payload datadogclient.Payload
+		var payload influxdbclient.Payload
 		err = json.Unmarshal(bodies[0], &payload)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(payload.Series).To(HaveLen(3))
@@ -73,13 +74,13 @@ var _ = Describe("DatadogClient", func() {
 	})
 
 	It("generates aggregate messages even when idle", func() {
-		c := datadogclient.New(ts.URL, "dummykey", "datadog.nozzle.", "test-deployment", "dummy-ip")
+		c := influxdbclient.New(ts.URL, "testdb", "user", "password", "influxdb.nozzle.", "test-deployment", "dummy-ip")
 
 		err := c.PostMetrics()
 		Expect(err).ToNot(HaveOccurred())
 
 		Eventually(bodies).Should(HaveLen(1))
-		var payload datadogclient.Payload
+		var payload influxdbclient.Payload
 		err = json.Unmarshal(bodies[0], &payload)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(payload.Series).To(HaveLen(3))
@@ -98,7 +99,7 @@ var _ = Describe("DatadogClient", func() {
 	})
 
 	It("posts ValueMetrics in JSON format", func() {
-		c := datadogclient.New(ts.URL, "dummykey", "datadog.nozzle.", "test-deployment", "dummy-ip")
+		c := influxdbclient.New(ts.URL, "testdb", "user", "password", "influxdb.nozzle.", "test-deployment", "dummy-ip")
 
 		c.AddMetric(&events.Envelope{
 			Origin:    proto.String("origin"),
@@ -129,7 +130,7 @@ var _ = Describe("DatadogClient", func() {
 
 		Eventually(bodies).Should(HaveLen(1))
 
-		var payload datadogclient.Payload
+		var payload influxdbclient.Payload
 		err = json.Unmarshal(bodies[0], &payload)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(payload.Series).To(HaveLen(4))
@@ -140,12 +141,12 @@ var _ = Describe("DatadogClient", func() {
 
 			if metric.Metric == "datadog.nozzle.origin.metricName" {
 				metricFound = true
-				Expect(metric.Points).To(Equal([]datadogclient.Point{
-					datadogclient.Point{
+				Expect(metric.Points).To(Equal([]influxdbclient.Point{
+					influxdbclient.Point{
 						Timestamp: 1,
 						Value:     5.0,
 					},
-					datadogclient.Point{
+					influxdbclient.Point{
 						Timestamp: 2,
 						Value:     76.0,
 					},
@@ -159,7 +160,7 @@ var _ = Describe("DatadogClient", func() {
 	})
 
 	It("registers metrics with the same name but different tags as different", func() {
-		c := datadogclient.New(ts.URL, "dummykey", "datadog.nozzle.", "test-deployment", "dummy-ip")
+		c := influxdbclient.New(ts.URL, "testdb", "user", "password", "influxdb.nozzle.", "test-deployment", "dummy-ip")
 
 		c.AddMetric(&events.Envelope{
 			Origin:    proto.String("origin"),
@@ -190,7 +191,7 @@ var _ = Describe("DatadogClient", func() {
 
 		Eventually(bodies).Should(HaveLen(1))
 
-		var payload datadogclient.Payload
+		var payload influxdbclient.Payload
 		err = json.Unmarshal(bodies[0], &payload)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(payload.Series).To(HaveLen(5))
@@ -204,16 +205,16 @@ var _ = Describe("DatadogClient", func() {
 				Expect(metric.Tags[0]).To(Equal("deployment:deployment-name"))
 				if metric.Tags[1] == "job:doppler" {
 					dopplerFound = true
-					Expect(metric.Points).To(Equal([]datadogclient.Point{
-						datadogclient.Point{
+					Expect(metric.Points).To(Equal([]influxdbclient.Point{
+						influxdbclient.Point{
 							Timestamp: 1,
 							Value:     5.0,
 						},
 					}))
 				} else if metric.Tags[1] == "job:gorouter" {
 					gorouterFound = true
-					Expect(metric.Points).To(Equal([]datadogclient.Point{
-						datadogclient.Point{
+					Expect(metric.Points).To(Equal([]influxdbclient.Point{
+						influxdbclient.Point{
 							Timestamp: 2,
 							Value:     76.0,
 						},
@@ -229,7 +230,7 @@ var _ = Describe("DatadogClient", func() {
 	})
 
 	It("posts CounterEvents in JSON format and empties map after post", func() {
-		c := datadogclient.New(ts.URL, "dummykey", "datadog.nozzle.", "test-deployment", "dummy-ip")
+		c := influxdbclient.New(ts.URL, "testdb", "user", "password", "influxdb.nozzle.", "test-deployment", "dummy-ip")
 
 		c.AddMetric(&events.Envelope{
 			Origin:    proto.String("origin"),
@@ -258,7 +259,7 @@ var _ = Describe("DatadogClient", func() {
 
 		Eventually(bodies).Should(HaveLen(1))
 
-		var payload datadogclient.Payload
+		var payload influxdbclient.Payload
 		err = json.Unmarshal(bodies[0], &payload)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(payload.Series).To(HaveLen(4))
@@ -268,12 +269,12 @@ var _ = Describe("DatadogClient", func() {
 
 			if metric.Metric == "datadog.nozzle.origin.counterName" {
 				counterNameFound = true
-				Expect(metric.Points).To(Equal([]datadogclient.Point{
-					datadogclient.Point{
+				Expect(metric.Points).To(Equal([]influxdbclient.Point{
+					influxdbclient.Point{
 						Timestamp: 1,
 						Value:     5.0,
 					},
-					datadogclient.Point{
+					influxdbclient.Point{
 						Timestamp: 2,
 						Value:     11.0,
 					},
@@ -296,7 +297,7 @@ var _ = Describe("DatadogClient", func() {
 	})
 
 	It("sends a value 1 for the slowConsumerAlert metric when consumer error is set", func() {
-		c := datadogclient.New(ts.URL, "dummykey", "datadog.nozzle.", "test-deployment", "dummy-ip")
+		c := influxdbclient.New(ts.URL, "testdb", "user", "password", "influxdb.nozzle.", "test-deployment", "dummy-ip")
 
 		c.AlertSlowConsumerError()
 
@@ -304,7 +305,7 @@ var _ = Describe("DatadogClient", func() {
 		Expect(err).ToNot(HaveOccurred())
 
 		Eventually(bodies).Should(HaveLen(1))
-		var payload datadogclient.Payload
+		var payload influxdbclient.Payload
 		err = json.Unmarshal(bodies[0], &payload)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(payload.Series).To(HaveLen(3))
@@ -317,13 +318,13 @@ var _ = Describe("DatadogClient", func() {
 	})
 
 	It("sends a value 0 for the slowConsumerAlert metric when consumer error is not set", func() {
-		c := datadogclient.New(ts.URL, "dummykey", "datadog.nozzle.", "test-deployment", "dummy-ip")
+		c := influxdbclient.New(ts.URL, "testdb", "user", "password", "influxdb.nozzle.", "test-deployment", "dummy-ip")
 
 		err := c.PostMetrics()
 		Expect(err).ToNot(HaveOccurred())
 
 		Eventually(bodies).Should(HaveLen(1))
-		var payload datadogclient.Payload
+		var payload influxdbclient.Payload
 		err = json.Unmarshal(bodies[0], &payload)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(payload.Series).To(HaveLen(3))
@@ -336,7 +337,7 @@ var _ = Describe("DatadogClient", func() {
 	})
 
 	It("unsets the slow consumer error once it publishes the alert to datadog", func() {
-		c := datadogclient.New(ts.URL, "dummykey", "datadog.nozzle.", "test-deployment", "dummy-ip")
+		c := influxdbclient.New(ts.URL, "testdb", "user", "password", "influxdb.nozzle.", "test-deployment", "dummy-ip")
 
 		c.AlertSlowConsumerError()
 
@@ -344,7 +345,7 @@ var _ = Describe("DatadogClient", func() {
 		Expect(err).ToNot(HaveOccurred())
 
 		Eventually(bodies).Should(HaveLen(1))
-		var payload datadogclient.Payload
+		var payload influxdbclient.Payload
 		err = json.Unmarshal(bodies[0], &payload)
 		Expect(err).NotTo(HaveOccurred())
 
@@ -366,7 +367,7 @@ var _ = Describe("DatadogClient", func() {
 
 	It("returns an error when datadog responds with a non 200 response code", func() {
 
-		c := datadogclient.New(ts.URL, "dummykey", "datadog.nozzle.", "test-deployment", "dummy-ip")
+		c := influxdbclient.New(ts.URL, "testdb", "user", "password", "influxdb.nozzle.", "test-deployment", "dummy-ip")
 		responseCode = http.StatusBadRequest // 400
 		err := c.PostMetrics()
 		Expect(err).To(HaveOccurred())
@@ -385,7 +386,7 @@ var _ = Describe("DatadogClient", func() {
 
 })
 
-func validateMetrics(payload datadogclient.Payload, totalMessagesReceived int, totalMetricsSent int) {
+func validateMetrics(payload influxdbclient.Payload, totalMessagesReceived int, totalMetricsSent int) {
 	totalMessagesReceivedFound := false
 	totalMetricsSentFound := false
 	for _, metric := range payload.Series {
@@ -426,7 +427,7 @@ func handlePost(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(responseCode)
 }
 
-func findSlowConsumerMetric(payload datadogclient.Payload) *datadogclient.Metric {
+func findSlowConsumerMetric(payload influxdbclient.Payload) *influxdbclient.Metric {
 	for _, metric := range payload.Series {
 		if metric.Metric == "datadog.nozzle.slowConsumerAlert" {
 			return &metric

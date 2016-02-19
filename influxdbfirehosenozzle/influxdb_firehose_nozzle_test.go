@@ -7,36 +7,37 @@ import (
 
 	"encoding/json"
 	"fmt"
-	"github.com/evoila/influxdb-firehose-nozzle/datadogclient"
-	"github.com/evoila/influxdb-firehose-nozzle/datadogfirehosenozzle"
-	"github.com/evoila/influxdb-firehose-nozzle/nozzleconfig"
-	"github.com/evoila/influxdb-firehose-nozzle/uaatokenfetcher"
-	"github.com/cloudfoundry/sonde-go/events"
-	"github.com/gogo/protobuf/proto"
-	"github.com/gorilla/websocket"
-	"github.com/onsi/gomega/gbytes"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/cloudfoundry/sonde-go/events"
+	"github.com/evoila/influxdb-firehose-nozzle/influxdbclient"
+	"github.com/evoila/influxdb-firehose-nozzle/influxdbfirehosenozzle"
+	"github.com/evoila/influxdb-firehose-nozzle/nozzleconfig"
+	"github.com/evoila/influxdb-firehose-nozzle/uaatokenfetcher"
+	"github.com/gogo/protobuf/proto"
+	"github.com/gorilla/websocket"
+	"github.com/onsi/gomega/gbytes"
 )
 
 var _ = Describe("Datadog Firehose Nozzle", func() {
 	var fakeUAA *FakeUAA
 	var fakeFirehose *FakeFirehose
-	var fakeDatadogAPI *FakeDatadogAPI
+	var influxDbAPI *FakeInfluxDbAPI
 	var config *nozzleconfig.NozzleConfig
-	var nozzle *datadogfirehosenozzle.DatadogFirehoseNozzle
+	var nozzle *influxdbfirehosenozzle.InfluxDbFirehoseNozzle
 	var logOutput *gbytes.Buffer
 
 	BeforeEach(func() {
 		fakeUAA = NewFakeUAA("bearer", "123456789")
 		fakeToken := fakeUAA.AuthToken()
 		fakeFirehose = NewFakeFirehose(fakeToken)
-		fakeDatadogAPI = NewFakeDatadogAPI()
+		influxDbAPI = NewFakeInfluxDbAPI()
 
 		fakeUAA.Start()
 		fakeFirehose.Start()
-		fakeDatadogAPI.Start()
+		influxDbAPI.Start()
 
 		tokenFetcher := &uaatokenfetcher.UAATokenFetcher{
 			UaaUrl: fakeUAA.URL(),
@@ -45,7 +46,7 @@ var _ = Describe("Datadog Firehose Nozzle", func() {
 		config = &nozzleconfig.NozzleConfig{
 			UAAURL:               fakeUAA.URL(),
 			FlushDurationSeconds: 10,
-			DataDogURL:           fakeDatadogAPI.URL(),
+			InfluxDbUrl:          influxDbAPI.URL(),
 			TrafficControllerURL: strings.Replace(fakeFirehose.URL(), "http:", "ws:", 1),
 			DisableAccessControl: false,
 			MetricPrefix:         "datadog.nozzle.",
@@ -53,13 +54,13 @@ var _ = Describe("Datadog Firehose Nozzle", func() {
 
 		logOutput = gbytes.NewBuffer()
 		log.SetOutput(logOutput)
-		nozzle = datadogfirehosenozzle.NewDatadogFirehoseNozzle(config, tokenFetcher)
+		nozzle = influxdbfirehosenozzle.NewInfluxDbFirehoseNozzle(config, tokenFetcher)
 	})
 
 	AfterEach(func() {
 		fakeUAA.Close()
 		fakeFirehose.Close()
-		fakeDatadogAPI.Close()
+		influxDbAPI.Close()
 	})
 
 	It("receives data from the firehose", func(done Done) {
@@ -84,9 +85,9 @@ var _ = Describe("Datadog Firehose Nozzle", func() {
 		go nozzle.Start()
 
 		var contents []byte
-		Eventually(fakeDatadogAPI.ReceivedContents).Should(Receive(&contents))
+		Eventually(influxDbAPI.ReceivedContents).Should(Receive(&contents))
 
-		var payload datadogclient.Payload
+		var payload influxdbclient.Payload
 		err := json.Unmarshal(contents, &payload)
 		Expect(err).ToNot(HaveOccurred())
 
@@ -121,7 +122,7 @@ var _ = Describe("Datadog Firehose Nozzle", func() {
 		go nozzle.Start()
 
 		var contents []byte
-		Eventually(fakeDatadogAPI.ReceivedContents).Should(Receive(&contents))
+		Eventually(influxDbAPI.ReceivedContents).Should(Receive(&contents))
 
 		var payload datadogclient.Payload
 		err := json.Unmarshal(contents, &payload)
@@ -145,7 +146,7 @@ var _ = Describe("Datadog Firehose Nozzle", func() {
 		go nozzle.Start()
 
 		var contents []byte
-		Eventually(fakeDatadogAPI.ReceivedContents).Should(Receive(&contents))
+		Eventually(influxDbAPI.ReceivedContents).Should(Receive(&contents))
 
 		var payload datadogclient.Payload
 		err := json.Unmarshal(contents, &payload)
@@ -185,7 +186,7 @@ var _ = Describe("Datadog Firehose Nozzle", func() {
 			go nozzle.Start()
 
 			var contents []byte
-			Eventually(fakeDatadogAPI.ReceivedContents).Should(Receive(&contents))
+			Eventually(influxDbAPI.ReceivedContents).Should(Receive(&contents))
 
 			var payload datadogclient.Payload
 			err := json.Unmarshal(contents, &payload)
@@ -204,16 +205,16 @@ var _ = Describe("Datadog Firehose Nozzle", func() {
 			fakeUAA = NewFakeUAA("", "")
 			fakeToken := fakeUAA.AuthToken()
 			fakeFirehose = NewFakeFirehose(fakeToken)
-			fakeDatadogAPI = NewFakeDatadogAPI()
+			influxDbAPI = NewFakeInfluxDbAPI()
 			tokenFetcher = &FakeTokenFetcher{}
 
 			fakeUAA.Start()
 			fakeFirehose.Start()
-			fakeDatadogAPI.Start()
+			influxDbAPI.Start()
 
 			config = &nozzleconfig.NozzleConfig{
 				FlushDurationSeconds: 1,
-				DataDogURL:           fakeDatadogAPI.URL(),
+				DataDogURL:           influxDbAPI.URL(),
 				TrafficControllerURL: strings.Replace(fakeFirehose.URL(), "http:", "ws:", 1),
 				DisableAccessControl: true,
 			}
@@ -224,7 +225,7 @@ var _ = Describe("Datadog Firehose Nozzle", func() {
 		AfterEach(func() {
 			fakeUAA.Close()
 			fakeFirehose.Close()
-			fakeDatadogAPI.Close()
+			influxDbAPI.Close()
 		})
 
 		It("can still tries to connect to the firehose", func() {
@@ -251,7 +252,7 @@ var _ = Describe("Datadog Firehose Nozzle", func() {
 			fakeIdleFirehose.Start()
 
 			config = &nozzleconfig.NozzleConfig{
-				DataDogURL:           fakeDatadogAPI.URL(),
+				DataDogURL:           influxDbAPI.URL(),
 				TrafficControllerURL: strings.Replace(fakeIdleFirehose.URL(), "http:", "ws:", 1),
 				DisableAccessControl: true,
 				IdleTimeoutSeconds:   1,

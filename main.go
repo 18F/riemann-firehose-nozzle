@@ -36,10 +36,10 @@ func main() {
 	defer close(threadDumpChan)
 	go dumpGoRoutine(threadDumpChan)
 
+	go runServer()
+
 	influxDbNozzle := influxdbfirehosenozzle.NewInfluxDbFirehoseNozzle(config, tokenFetcher)
 	influxDbNozzle.Start()
-
-	runServer()
 }
 
 func defaultResponse(w http.ResponseWriter, r *http.Request) {
@@ -48,6 +48,8 @@ func defaultResponse(w http.ResponseWriter, r *http.Request) {
 
 func runServer() {
 	port := os.Getenv("PORT")
+
+	log.Print("Go Port from environment: " + port)
 
 	if port == "" {
 		port = "8000"
