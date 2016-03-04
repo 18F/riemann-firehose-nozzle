@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	log.Print("Starting in main()")
+	log.Println("\n\n---------------\n\nStarting in main()\n\n--------------")
 	configFilePath := flag.String("config", "config/influxdb-firehose-nozzle.json", "Location of the nozzle config json file")
 	flag.Parse()
 

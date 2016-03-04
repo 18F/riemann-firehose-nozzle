@@ -1,1 +1,1 @@
-web: init.sh && inflxudb-firehose-nozzle
+web: init.sh && influxdb-firehose-nozzle
