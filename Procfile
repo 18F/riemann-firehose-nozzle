@@ -1,1 +1,1 @@
-web: inflxudb-firehose-nozzle
+web: init.sh && inflxudb-firehose-nozzle

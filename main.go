@@ -17,6 +17,7 @@ import (
 )
 
 func main() {
+	log.Print("Starting in main()")
 	configFilePath := flag.String("config", "config/influxdb-firehose-nozzle.json", "Location of the nozzle config json file")
 	flag.Parse()
 
@@ -29,7 +30,7 @@ func main() {
 		UaaUrl:                config.UAAURL,
 		Username:              config.Username,
 		Password:              config.Password,
-		InsecureSSLSkipVerify: config.InsecureSSLSkipVerify,
+		InsecureSSLSkipVerify: false, //config.InsecureSSLSkipVerify,
 	}
 
 	threadDumpChan := registerGoRoutineDumpSignalChannel()
