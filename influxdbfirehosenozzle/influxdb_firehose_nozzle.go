@@ -3,13 +3,13 @@ package influxdbfirehosenozzle
 import (
 	"crypto/tls"
 	"log"
-	"os"
+	//"os"
 	"time"
 
+	"github.com/18F/influxdb-firehose-nozzle/influxdbclient"
+	"github.com/18F/influxdb-firehose-nozzle/nozzleconfig"
 	"github.com/cloudfoundry/noaa"
 	"github.com/cloudfoundry/sonde-go/events"
-	"github.com/evoila/influxdb-firehose-nozzle/influxdbclient"
-	"github.com/evoila/influxdb-firehose-nozzle/nozzleconfig"
 	"github.com/gorilla/websocket"
 	"github.com/pivotal-golang/localip"
 )
@@ -89,8 +89,8 @@ func (d *InfluxDbFirehoseNozzle) postToInfluxDb() error {
 func (d *InfluxDbFirehoseNozzle) postMetrics() {
 	err := d.client.PostMetrics()
 	if err != nil {
-		log.Printf("FATAL ERROR: %s\n\n", err)
-		os.Exit(1)
+		log.Println("FATAL ERROR: " + err.Error())
+		// os.Exit(1)
 	}
 }
 

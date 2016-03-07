@@ -7,8 +7,8 @@ import (
 	"github.com/cloudfoundry/sonde-go/events"
 	"github.com/gogo/protobuf/proto"
 
-	"github.com/evoila/influxdb-firehose-nozzle/datadogclient"
-	. "github.com/evoila/influxdb-firehose-nozzle/testhelpers"
+	"github.com/18F/influxdb-firehose-nozzle/datadogclient"
+	. "github.com/18F/influxdb-firehose-nozzle/testhelpers"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"

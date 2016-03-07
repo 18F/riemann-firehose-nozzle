@@ -1,7 +1,7 @@
 package influxdbfirehosenozzle_test
 
 import (
-	. "github.com/evoila/influxdb-firehose-nozzle/testhelpers"
+	. "github.com/18F/influxdb-firehose-nozzle/testhelpers"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
@@ -12,10 +12,10 @@ import (
 	"time"
 
 	"github.com/cloudfoundry/sonde-go/events"
-	"github.com/evoila/influxdb-firehose-nozzle/influxdbclient"
-	"github.com/evoila/influxdb-firehose-nozzle/influxdbfirehosenozzle"
-	"github.com/evoila/influxdb-firehose-nozzle/nozzleconfig"
-	"github.com/evoila/influxdb-firehose-nozzle/uaatokenfetcher"
+	"github.com/18F/influxdb-firehose-nozzle/influxdbclient"
+	"github.com/18F/influxdb-firehose-nozzle/influxdbfirehosenozzle"
+	"github.com/18F/influxdb-firehose-nozzle/nozzleconfig"
+	"github.com/18F/influxdb-firehose-nozzle/uaatokenfetcher"
 	"github.com/gogo/protobuf/proto"
 	"github.com/gorilla/websocket"
 	"github.com/onsi/gomega/gbytes"

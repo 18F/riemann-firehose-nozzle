@@ -4,5 +4,5 @@ applications:
   memory: 256M
   instances: 1
   host: influxdb-firehose-nozzle
-  domain: onevoila.rocks
+  domain: on18F.rocks
   buildpack: https://github.com/cloudfoundry/go-buildpack.git

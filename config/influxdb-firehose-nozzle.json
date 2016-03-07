@@ -1,8 +1,8 @@
 {
-  "UAAURL": "https://uaa.onevoila.rocks",
+  "UAAURL": "https://uaa.on18F.rocks",
   "Username": "influxdb-firehose-nozzle",
   "Password": "c1oudc0w",
-  "TrafficControllerURL": "wss://doppler.onevoila.rocks:4443",
+  "TrafficControllerURL": "wss://doppler.on18F.rocks:4443",
   "FirehoseSubscriptionID": "influxdb-firehose-nozzle",
   "InfluxDbUrl": "http://localhost:8086",
   "InfluxDbDatabase": "cloudfoundry",

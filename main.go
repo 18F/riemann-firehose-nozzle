@@ -11,9 +11,9 @@ import (
 	"runtime/pprof"
 	"syscall"
 
-	"github.com/evoila/influxdb-firehose-nozzle/influxdbfirehosenozzle"
-	"github.com/evoila/influxdb-firehose-nozzle/nozzleconfig"
-	"github.com/evoila/influxdb-firehose-nozzle/uaatokenfetcher"
+	"github.com/18F/influxdb-firehose-nozzle/influxdbfirehosenozzle"
+	"github.com/18F/influxdb-firehose-nozzle/nozzleconfig"
+	"github.com/18F/influxdb-firehose-nozzle/uaatokenfetcher"
 )
 
 func main() {
