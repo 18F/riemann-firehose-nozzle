@@ -1,6 +1,7 @@
 ---
 applications:
 - name: influxdb-firehose-nozzle
+  no-route: true
   memory: 512M
   instances: 2
   host: influxdb-firehose-nozzle
