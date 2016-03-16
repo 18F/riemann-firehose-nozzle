@@ -1,8 +1,9 @@
 ---
 applications:
 - name: influxdb-firehose-nozzle
-  memory: 256M
-  instances: 1
+  no-route: true
+  memory: 512M
+  instances: 2
   host: influxdb-firehose-nozzle
-  domain: on18F.rocks
+  domain: apps.cloud.gov
   buildpack: https://github.com/cloudfoundry/go-buildpack.git
