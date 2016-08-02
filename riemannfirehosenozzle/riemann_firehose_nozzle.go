@@ -1,4 +1,4 @@
-package influxdbfirehosenozzle
+package riemannfirehosenozzle
 
 import (
 	"crypto/tls"
@@ -6,29 +6,29 @@ import (
 	//"os"
 	"time"
 
-	"github.com/18F/influxdb-firehose-nozzle/influxdbclient"
-	"github.com/18F/influxdb-firehose-nozzle/nozzleconfig"
+	"github.com/18F/riemann-firehose-nozzle/nozzleconfig"
+	"github.com/18F/riemann-firehose-nozzle/riemannclient"
 	"github.com/cloudfoundry/noaa"
 	"github.com/cloudfoundry/sonde-go/events"
 	"github.com/gorilla/websocket"
 	"github.com/pivotal-golang/localip"
 )
 
-type InfluxDbFirehoseNozzle struct {
+type RiemannFirehoseNozzle struct {
 	config           *nozzleconfig.NozzleConfig
 	errs             chan error
 	messages         chan *events.Envelope
 	authTokenFetcher AuthTokenFetcher
 	consumer         *noaa.Consumer
-	client           *influxdbclient.Client
+	client           *riemannclient.Client
 }
 
 type AuthTokenFetcher interface {
 	FetchAuthToken() string
 }
 
-func NewInfluxDbFirehoseNozzle(config *nozzleconfig.NozzleConfig, tokenFetcher AuthTokenFetcher) *InfluxDbFirehoseNozzle {
-	return &InfluxDbFirehoseNozzle{
+func NewRiemannFirehoseNozzle(config *nozzleconfig.NozzleConfig, tokenFetcher AuthTokenFetcher) *RiemannFirehoseNozzle {
+	return &RiemannFirehoseNozzle{
 		config:           config,
 		errs:             make(chan error),
 		messages:         make(chan *events.Envelope),
@@ -36,32 +36,32 @@ func NewInfluxDbFirehoseNozzle(config *nozzleconfig.NozzleConfig, tokenFetcher A
 	}
 }
 
-func (d *InfluxDbFirehoseNozzle) Start() error {
+func (d *RiemannFirehoseNozzle) Start() error {
 	var authToken string
 
 	if !d.config.DisableAccessControl {
 		authToken = d.authTokenFetcher.FetchAuthToken()
 	}
 
-	log.Print("Starting InfluxDb Firehose Nozzle...")
+	log.Print("Starting Riemann Firehose Nozzle...")
 	d.createClient()
 	d.consumeFirehose(authToken)
-	err := d.postToInfluxDb()
-	log.Print("InfluxDb Firehose Nozzle shutting down...")
+	err := d.postToRiemann()
+	log.Print("Riemann Firehose Nozzle shutting down...")
 	return err
 }
 
-func (d *InfluxDbFirehoseNozzle) createClient() {
+func (d *RiemannFirehoseNozzle) createClient() {
 	ipAddress, err := localip.LocalIP()
 	if err != nil {
 		panic(err)
 	}
 
-	d.client = influxdbclient.New(d.config.InfluxDbUrl, d.config.InfluxDbDatabase, d.config.InfluxDbUser,
-		d.config.InfluxDbPassword, d.config.MetricPrefix, d.config.Deployment, ipAddress)
+	d.client = riemannclient.New(d.config.RiemannHost, d.config.RiemannPort, d.config.RiemannTransport,
+		d.config.MetricPrefix, d.config.Deployment, ipAddress)
 }
 
-func (d *InfluxDbFirehoseNozzle) consumeFirehose(authToken string) {
+func (d *RiemannFirehoseNozzle) consumeFirehose(authToken string) {
 	d.consumer = noaa.NewConsumer(
 		d.config.TrafficControllerURL,
 		&tls.Config{InsecureSkipVerify: d.config.InsecureSSLSkipVerify},
@@ -70,7 +70,7 @@ func (d *InfluxDbFirehoseNozzle) consumeFirehose(authToken string) {
 	go d.consumer.Firehose(d.config.FirehoseSubscriptionID, authToken, d.messages, d.errs)
 }
 
-func (d *InfluxDbFirehoseNozzle) postToInfluxDb() error {
+func (d *RiemannFirehoseNozzle) postToRiemann() error {
 	ticker := time.NewTicker(time.Duration(d.config.FlushDurationSeconds) * time.Second)
 	for {
 		select {
@@ -86,7 +86,7 @@ func (d *InfluxDbFirehoseNozzle) postToInfluxDb() error {
 	}
 }
 
-func (d *InfluxDbFirehoseNozzle) postMetrics() {
+func (d *RiemannFirehoseNozzle) postMetrics() {
 	err := d.client.PostMetrics()
 	if err != nil {
 		log.Println("FATAL ERROR: " + err.Error())
@@ -94,7 +94,7 @@ func (d *InfluxDbFirehoseNozzle) postMetrics() {
 	}
 }
 
-func (d *InfluxDbFirehoseNozzle) handleError(err error) {
+func (d *RiemannFirehoseNozzle) handleError(err error) {
 	switch closeErr := err.(type) {
 	case *websocket.CloseError:
 		switch closeErr.Code {
@@ -117,7 +117,7 @@ func (d *InfluxDbFirehoseNozzle) handleError(err error) {
 	d.postMetrics()
 }
 
-func (d *InfluxDbFirehoseNozzle) handleMessage(envelope *events.Envelope) {
+func (d *RiemannFirehoseNozzle) handleMessage(envelope *events.Envelope) {
 	if envelope.GetEventType() == events.Envelope_CounterEvent && envelope.CounterEvent.GetName() == "TruncatingBuffer.DroppedMessages" && envelope.GetOrigin() == "doppler" {
 		log.Printf("We've intercepted an upstream message which indicates that the nozzle or the TrafficController is not keeping up. Please try scaling up the nozzle.")
 		d.client.AlertSlowConsumerError()

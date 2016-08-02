@@ -14,10 +14,9 @@ type NozzleConfig struct {
 	Password               string
 	TrafficControllerURL   string
 	FirehoseSubscriptionID string
-	InfluxDbUrl            string
-	InfluxDbDatabase       string
-	InfluxDbUser           string
-	InfluxDbPassword       string
+	RiemannHost            string
+	RiemannPort            string
+	RiemannTransport       string
 	FlushDurationSeconds   uint32
 	InsecureSSLSkipVerify  bool
 	MetricPrefix           string
@@ -43,10 +42,9 @@ func Parse(configPath string) (*NozzleConfig, error) {
 	overrideWithEnvVar("NOZZLE_PASSWORD", &config.Password)
 	overrideWithEnvVar("NOZZLE_TRAFFICCONTROLLERURL", &config.TrafficControllerURL)
 	overrideWithEnvVar("NOZZLE_FIREHOSESUBSCRIPTIONID", &config.FirehoseSubscriptionID)
-	overrideWithEnvVar("NOZZLE_INFLUXDB_URL", &config.InfluxDbUrl)
-	overrideWithEnvVar("NOZZLE_INFLUXDB_DATABASE", &config.InfluxDbDatabase)
-	overrideWithEnvVar("NOZZLE_INFLUXDB_USER", &config.InfluxDbUser)
-	overrideWithEnvVar("NOZZLE_INFLUXDB_PASSWORD", &config.InfluxDbPassword)
+	overrideWithEnvVar("NOZZLE_RIEMANN_HOST", &config.RiemannHost)
+	overrideWithEnvVar("NOZZLE_RIEMANN_PORT", &config.RiemannPort)
+	overrideWithEnvVar("NOZZLE_RIEMANN_TRANSPORT", &config.RiemannTransport)
 	overrideWithEnvVar("NOZZLE_METRICPREFIX", &config.MetricPrefix)
 	overrideWithEnvVar("NOZZLE_DEPLOYMENT", &config.Deployment)
 

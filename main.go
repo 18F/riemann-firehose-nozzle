@@ -11,14 +11,14 @@ import (
 	"runtime/pprof"
 	"syscall"
 
-	"github.com/18F/influxdb-firehose-nozzle/influxdbfirehosenozzle"
-	"github.com/18F/influxdb-firehose-nozzle/nozzleconfig"
-	"github.com/18F/influxdb-firehose-nozzle/uaatokenfetcher"
+	"github.com/18F/riemann-firehose-nozzle/nozzleconfig"
+	"github.com/18F/riemann-firehose-nozzle/riemannfirehosenozzle"
+	"github.com/18F/riemann-firehose-nozzle/uaatokenfetcher"
 )
 
 func main() {
 	log.Println("\n\n---------------\n\nStarting in main()\n\n--------------")
-	configFilePath := flag.String("config", "config/influxdb-firehose-nozzle.json", "Location of the nozzle config json file")
+	configFilePath := flag.String("config", "config/riemann-firehose-nozzle.json", "Location of the nozzle config json file")
 	flag.Parse()
 
 	config, err := nozzleconfig.Parse(*configFilePath)
@@ -39,8 +39,8 @@ func main() {
 
 	go runServer()
 
-	influxDbNozzle := influxdbfirehosenozzle.NewInfluxDbFirehoseNozzle(config, tokenFetcher)
-	influxDbNozzle.Start()
+	riemannNozzle := riemannfirehosenozzle.NewRiemannFirehoseNozzle(config, tokenFetcher)
+	riemannNozzle.Start()
 }
 
 func defaultResponse(w http.ResponseWriter, r *http.Request) {

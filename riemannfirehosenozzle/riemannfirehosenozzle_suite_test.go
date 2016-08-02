@@ -1,4 +1,4 @@
-package influxdbfirehosenozzle_test
+package riemannfirehosenozzle_test
 
 import (
 	. "github.com/onsi/ginkgo"
