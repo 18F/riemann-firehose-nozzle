@@ -5,17 +5,17 @@
 package events
 
 import proto "github.com/gogo/protobuf/proto"
+import fmt "fmt"
 import math "math"
-
-// discarding unused import gogoproto "github.com/gogo/protobuf/gogoproto"
+import _ "github.com/gogo/protobuf/gogoproto"
 
 import github_com_gogo_protobuf_proto "github.com/gogo/protobuf/proto"
 
 import io "io"
-import fmt "fmt"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
+var _ = fmt.Errorf
 var _ = math.Inf
 
 // / MessageType stores the destination of the message (corresponding to STDOUT or STDERR).
@@ -51,21 +51,23 @@ func (x *LogMessage_MessageType) UnmarshalJSON(data []byte) error {
 	*x = LogMessage_MessageType(value)
 	return nil
 }
+func (LogMessage_MessageType) EnumDescriptor() ([]byte, []int) { return fileDescriptorLog, []int{0, 0} }
 
 // / A LogMessage contains a "log line" and associated metadata.
 type LogMessage struct {
 	Message          []byte                  `protobuf:"bytes,1,req,name=message" json:"message,omitempty"`
-	MessageType      *LogMessage_MessageType `protobuf:"varint,2,req,name=message_type,enum=events.LogMessage_MessageType" json:"message_type,omitempty"`
+	MessageType      *LogMessage_MessageType `protobuf:"varint,2,req,name=message_type,json=messageType,enum=events.LogMessage_MessageType" json:"message_type,omitempty"`
 	Timestamp        *int64                  `protobuf:"varint,3,req,name=timestamp" json:"timestamp,omitempty"`
-	AppId            *string                 `protobuf:"bytes,4,opt,name=app_id" json:"app_id,omitempty"`
-	SourceType       *string                 `protobuf:"bytes,5,opt,name=source_type" json:"source_type,omitempty"`
-	SourceInstance   *string                 `protobuf:"bytes,6,opt,name=source_instance" json:"source_instance,omitempty"`
+	AppId            *string                 `protobuf:"bytes,4,opt,name=app_id,json=appId" json:"app_id,omitempty"`
+	SourceType       *string                 `protobuf:"bytes,5,opt,name=source_type,json=sourceType" json:"source_type,omitempty"`
+	SourceInstance   *string                 `protobuf:"bytes,6,opt,name=source_instance,json=sourceInstance" json:"source_instance,omitempty"`
 	XXX_unrecognized []byte                  `json:"-"`
 }
 
-func (m *LogMessage) Reset()         { *m = LogMessage{} }
-func (m *LogMessage) String() string { return proto.CompactTextString(m) }
-func (*LogMessage) ProtoMessage()    {}
+func (m *LogMessage) Reset()                    { *m = LogMessage{} }
+func (m *LogMessage) String() string            { return proto.CompactTextString(m) }
+func (*LogMessage) ProtoMessage()               {}
+func (*LogMessage) Descriptor() ([]byte, []int) { return fileDescriptorLog, []int{0} }
 
 func (m *LogMessage) GetMessage() []byte {
 	if m != nil {
@@ -110,6 +112,7 @@ func (m *LogMessage) GetSourceInstance() string {
 }
 
 func init() {
+	proto.RegisterType((*LogMessage)(nil), "events.LogMessage")
 	proto.RegisterEnum("events.LogMessage_MessageType", LogMessage_MessageType_name, LogMessage_MessageType_value)
 }
 func (m *LogMessage) Marshal() (data []byte, err error) {
@@ -249,8 +252,12 @@ func (m *LogMessage) Unmarshal(data []byte) error {
 	l := len(data)
 	iNdEx := 0
 	for iNdEx < l {
+		preIndex := iNdEx
 		var wire uint64
 		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowLog
+			}
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
@@ -263,6 +270,12 @@ func (m *LogMessage) Unmarshal(data []byte) error {
 		}
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: LogMessage: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: LogMessage: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
@@ -270,6 +283,9 @@ func (m *LogMessage) Unmarshal(data []byte) error {
 			}
 			var byteLen int
 			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLog
+				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
@@ -287,7 +303,10 @@ func (m *LogMessage) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Message = append([]byte{}, data[iNdEx:postIndex]...)
+			m.Message = append(m.Message[:0], data[iNdEx:postIndex]...)
+			if m.Message == nil {
+				m.Message = []byte{}
+			}
 			iNdEx = postIndex
 			hasFields[0] |= uint64(0x00000001)
 		case 2:
@@ -296,6 +315,9 @@ func (m *LogMessage) Unmarshal(data []byte) error {
 			}
 			var v LogMessage_MessageType
 			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLog
+				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
@@ -314,6 +336,9 @@ func (m *LogMessage) Unmarshal(data []byte) error {
 			}
 			var v int64
 			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLog
+				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
@@ -332,6 +357,9 @@ func (m *LogMessage) Unmarshal(data []byte) error {
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLog
+				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
@@ -359,6 +387,9 @@ func (m *LogMessage) Unmarshal(data []byte) error {
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLog
+				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
@@ -386,6 +417,9 @@ func (m *LogMessage) Unmarshal(data []byte) error {
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLog
+				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
@@ -408,15 +442,7 @@ func (m *LogMessage) Unmarshal(data []byte) error {
 			m.SourceInstance = &s
 			iNdEx = postIndex
 		default:
-			var sizeOfWire int
-			for {
-				sizeOfWire++
-				wire >>= 7
-				if wire == 0 {
-					break
-				}
-			}
-			iNdEx -= sizeOfWire
+			iNdEx = preIndex
 			skippy, err := skipLog(data[iNdEx:])
 			if err != nil {
 				return err
@@ -441,6 +467,9 @@ func (m *LogMessage) Unmarshal(data []byte) error {
 		return github_com_gogo_protobuf_proto.NewRequiredNotSetError("timestamp")
 	}
 
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
 	return nil
 }
 func skipLog(data []byte) (n int, err error) {
@@ -449,6 +478,9 @@ func skipLog(data []byte) (n int, err error) {
 	for iNdEx < l {
 		var wire uint64
 		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return 0, ErrIntOverflowLog
+			}
 			if iNdEx >= l {
 				return 0, io.ErrUnexpectedEOF
 			}
@@ -462,7 +494,10 @@ func skipLog(data []byte) (n int, err error) {
 		wireType := int(wire & 0x7)
 		switch wireType {
 		case 0:
-			for {
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return 0, ErrIntOverflowLog
+				}
 				if iNdEx >= l {
 					return 0, io.ErrUnexpectedEOF
 				}
@@ -478,6 +513,9 @@ func skipLog(data []byte) (n int, err error) {
 		case 2:
 			var length int
 			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return 0, ErrIntOverflowLog
+				}
 				if iNdEx >= l {
 					return 0, io.ErrUnexpectedEOF
 				}
@@ -498,6 +536,9 @@ func skipLog(data []byte) (n int, err error) {
 				var innerWire uint64
 				var start int = iNdEx
 				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return 0, ErrIntOverflowLog
+					}
 					if iNdEx >= l {
 						return 0, io.ErrUnexpectedEOF
 					}
@@ -533,4 +574,29 @@ func skipLog(data []byte) (n int, err error) {
 
 var (
 	ErrInvalidLengthLog = fmt.Errorf("proto: negative length found during unmarshaling")
+	ErrIntOverflowLog   = fmt.Errorf("proto: integer overflow")
 )
+
+func init() { proto.RegisterFile("log.proto", fileDescriptorLog) }
+
+var fileDescriptorLog = []byte{
+	// 288 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0x4c, 0x50, 0xc1, 0x4a, 0x03, 0x31,
+	0x10, 0x65, 0xb7, 0xb6, 0xa5, 0xd3, 0x52, 0x4b, 0x40, 0x08, 0x22, 0xb5, 0xf6, 0x62, 0x2f, 0xa6,
+	0xe0, 0xd5, 0x93, 0x05, 0x85, 0x82, 0x22, 0x84, 0x7a, 0x2e, 0xdb, 0x4d, 0x1a, 0x17, 0xba, 0x3b,
+	0x21, 0x9b, 0x15, 0xf6, 0x13, 0xfc, 0x33, 0x8f, 0x7e, 0x82, 0xf8, 0x25, 0xa6, 0xd9, 0xc8, 0x7a,
+	0x18, 0xf2, 0xde, 0x9b, 0x37, 0x6f, 0x92, 0xc0, 0xe0, 0x80, 0x8a, 0x69, 0x83, 0x16, 0x49, 0x4f,
+	0xbe, 0xcb, 0xc2, 0x96, 0xe7, 0x37, 0x2a, 0xb3, 0x6f, 0xd5, 0x8e, 0xa5, 0x98, 0x2f, 0x15, 0x2a,
+	0x5c, 0xfa, 0xf6, 0xae, 0xda, 0x7b, 0xe6, 0x89, 0x47, 0xcd, 0xd8, 0xfc, 0x23, 0x06, 0x78, 0x42,
+	0xf5, 0x2c, 0xcb, 0x32, 0x51, 0x92, 0x50, 0xe8, 0xe7, 0x0d, 0xa4, 0xd1, 0x2c, 0x5e, 0x8c, 0xf8,
+	0x1f, 0x25, 0xf7, 0x30, 0x0a, 0x70, 0x6b, 0x6b, 0x2d, 0x69, 0xec, 0xda, 0xe3, 0xdb, 0x29, 0x6b,
+	0xd6, 0xb2, 0x36, 0x83, 0x85, 0x73, 0xe3, 0x5c, 0x7c, 0x98, 0xb7, 0x84, 0x5c, 0xc0, 0xc0, 0x66,
+	0x4e, 0xb0, 0x49, 0xae, 0x69, 0xc7, 0xcd, 0x77, 0x78, 0x2b, 0x90, 0x33, 0xe8, 0x25, 0x5a, 0x6f,
+	0x33, 0x41, 0x4f, 0x66, 0xd1, 0x62, 0xc0, 0xbb, 0x8e, 0xad, 0x05, 0xb9, 0x84, 0x61, 0x89, 0x95,
+	0x49, 0xc3, 0xda, 0xae, 0xef, 0x41, 0x23, 0xf9, 0xd4, 0x6b, 0x38, 0x0d, 0x86, 0xac, 0x70, 0x49,
+	0x45, 0x2a, 0x69, 0xcf, 0x9b, 0xc6, 0x8d, 0xbc, 0x0e, 0xea, 0xdc, 0x25, 0xfd, 0xbb, 0x1a, 0xe9,
+	0x43, 0xe7, 0xe5, 0x75, 0x33, 0x89, 0x8e, 0xe0, 0x81, 0xf3, 0x49, 0xbc, 0xba, 0xfb, 0xfc, 0x99,
+	0x46, 0x5f, 0xae, 0xbe, 0x5d, 0xc1, 0x15, 0x1a, 0xc5, 0xd2, 0x03, 0x56, 0x62, 0x8f, 0x55, 0x21,
+	0x4c, 0xcd, 0x84, 0x41, 0x5d, 0x62, 0x21, 0x64, 0x78, 0xf4, 0xea, 0xf8, 0x73, 0x8f, 0x49, 0x6a,
+	0xd1, 0xd4, 0xbf, 0x01, 0x00, 0x00, 0xff, 0xff, 0xb0, 0x4c, 0x0b, 0xe4, 0x8b, 0x01, 0x00, 0x00,
+}
