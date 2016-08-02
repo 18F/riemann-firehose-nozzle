@@ -1,1 +1,1 @@
-web: influxdb-firehose-nozzle
+web: riemann-firehose-nozzle

@@ -5,17 +5,17 @@
 package events
 
 import proto "github.com/gogo/protobuf/proto"
+import fmt "fmt"
 import math "math"
-
-// discarding unused import gogoproto "github.com/gogo/protobuf/gogoproto"
+import _ "github.com/gogo/protobuf/gogoproto"
 
 import github_com_gogo_protobuf_proto "github.com/gogo/protobuf/proto"
 
 import io "io"
-import fmt "fmt"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
+var _ = fmt.Errorf
 var _ = math.Inf
 
 // / An Error event represents an error in the originating process.
@@ -26,9 +26,10 @@ type Error struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Error) Reset()         { *m = Error{} }
-func (m *Error) String() string { return proto.CompactTextString(m) }
-func (*Error) ProtoMessage()    {}
+func (m *Error) Reset()                    { *m = Error{} }
+func (m *Error) String() string            { return proto.CompactTextString(m) }
+func (*Error) ProtoMessage()               {}
+func (*Error) Descriptor() ([]byte, []int) { return fileDescriptorError, []int{0} }
 
 func (m *Error) GetSource() string {
 	if m != nil && m.Source != nil {
@@ -51,6 +52,9 @@ func (m *Error) GetMessage() string {
 	return ""
 }
 
+func init() {
+	proto.RegisterType((*Error)(nil), "events.Error")
+}
 func (m *Error) Marshal() (data []byte, err error) {
 	size := m.Size()
 	data = make([]byte, size)
@@ -160,8 +164,12 @@ func (m *Error) Unmarshal(data []byte) error {
 	l := len(data)
 	iNdEx := 0
 	for iNdEx < l {
+		preIndex := iNdEx
 		var wire uint64
 		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowError
+			}
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
@@ -174,6 +182,12 @@ func (m *Error) Unmarshal(data []byte) error {
 		}
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Error: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Error: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
@@ -181,6 +195,9 @@ func (m *Error) Unmarshal(data []byte) error {
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowError
+				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
@@ -209,6 +226,9 @@ func (m *Error) Unmarshal(data []byte) error {
 			}
 			var v int32
 			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowError
+				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
@@ -227,6 +247,9 @@ func (m *Error) Unmarshal(data []byte) error {
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowError
+				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
@@ -250,15 +273,7 @@ func (m *Error) Unmarshal(data []byte) error {
 			iNdEx = postIndex
 			hasFields[0] |= uint64(0x00000004)
 		default:
-			var sizeOfWire int
-			for {
-				sizeOfWire++
-				wire >>= 7
-				if wire == 0 {
-					break
-				}
-			}
-			iNdEx -= sizeOfWire
+			iNdEx = preIndex
 			skippy, err := skipError(data[iNdEx:])
 			if err != nil {
 				return err
@@ -283,6 +298,9 @@ func (m *Error) Unmarshal(data []byte) error {
 		return github_com_gogo_protobuf_proto.NewRequiredNotSetError("message")
 	}
 
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
 	return nil
 }
 func skipError(data []byte) (n int, err error) {
@@ -291,6 +309,9 @@ func skipError(data []byte) (n int, err error) {
 	for iNdEx < l {
 		var wire uint64
 		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return 0, ErrIntOverflowError
+			}
 			if iNdEx >= l {
 				return 0, io.ErrUnexpectedEOF
 			}
@@ -304,7 +325,10 @@ func skipError(data []byte) (n int, err error) {
 		wireType := int(wire & 0x7)
 		switch wireType {
 		case 0:
-			for {
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return 0, ErrIntOverflowError
+				}
 				if iNdEx >= l {
 					return 0, io.ErrUnexpectedEOF
 				}
@@ -320,6 +344,9 @@ func skipError(data []byte) (n int, err error) {
 		case 2:
 			var length int
 			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return 0, ErrIntOverflowError
+				}
 				if iNdEx >= l {
 					return 0, io.ErrUnexpectedEOF
 				}
@@ -340,6 +367,9 @@ func skipError(data []byte) (n int, err error) {
 				var innerWire uint64
 				var start int = iNdEx
 				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return 0, ErrIntOverflowError
+					}
 					if iNdEx >= l {
 						return 0, io.ErrUnexpectedEOF
 					}
@@ -375,4 +405,23 @@ func skipError(data []byte) (n int, err error) {
 
 var (
 	ErrInvalidLengthError = fmt.Errorf("proto: negative length found during unmarshaling")
+	ErrIntOverflowError   = fmt.Errorf("proto: integer overflow")
 )
+
+func init() { proto.RegisterFile("error.proto", fileDescriptorError) }
+
+var fileDescriptorError = []byte{
+	// 187 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xe2, 0xe2, 0x4e, 0x2d, 0x2a, 0xca,
+	0x2f, 0xd2, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x4b, 0x2d, 0x4b, 0xcd, 0x2b, 0x29, 0x96,
+	0xd2, 0x4d, 0xcf, 0x2c, 0xc9, 0x28, 0x4d, 0xd2, 0x4b, 0xce, 0xcf, 0xd5, 0x4f, 0xcf, 0x4f, 0xcf,
+	0xd7, 0x07, 0x4b, 0x27, 0x95, 0xa6, 0x81, 0x79, 0x60, 0x0e, 0x98, 0x05, 0xd1, 0xa6, 0xe4, 0xcb,
+	0xc5, 0xea, 0x0a, 0x32, 0x45, 0x48, 0x8c, 0x8b, 0xad, 0x38, 0xbf, 0xb4, 0x28, 0x39, 0x55, 0x82,
+	0x51, 0x81, 0x49, 0x83, 0x33, 0x08, 0xca, 0x13, 0x12, 0xe2, 0x62, 0x49, 0xce, 0x4f, 0x49, 0x95,
+	0x60, 0x02, 0x8a, 0xb2, 0x06, 0x81, 0xd9, 0x42, 0x12, 0x5c, 0xec, 0xb9, 0xa9, 0xc5, 0xc5, 0x89,
+	0xe9, 0xa9, 0x12, 0xcc, 0x60, 0xc5, 0x30, 0xae, 0x93, 0xed, 0x89, 0x47, 0x72, 0x8c, 0x17, 0x80,
+	0xf8, 0x01, 0x10, 0x73, 0x29, 0xe6, 0x17, 0xa5, 0xeb, 0x25, 0xe7, 0xe4, 0x97, 0xa6, 0xa4, 0xe5,
+	0x97, 0xe6, 0xa5, 0x14, 0x55, 0xea, 0xa5, 0x14, 0xe5, 0x17, 0x14, 0xe7, 0xe7, 0xa5, 0xa4, 0xea,
+	0x41, 0x9c, 0xeb, 0xc4, 0x03, 0xb6, 0xdd, 0x2d, 0x31, 0xb9, 0x24, 0xbf, 0xa8, 0x12, 0x10, 0x00,
+	0x00, 0xff, 0xff, 0x46, 0xed, 0x44, 0xa1, 0xd2, 0x00, 0x00, 0x00,
+}

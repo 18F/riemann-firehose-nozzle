@@ -5,17 +5,17 @@
 package events
 
 import proto "github.com/gogo/protobuf/proto"
+import fmt "fmt"
 import math "math"
-
-// discarding unused import gogoproto "github.com/gogo/protobuf/gogoproto"
+import _ "github.com/gogo/protobuf/gogoproto"
 
 import github_com_gogo_protobuf_proto "github.com/gogo/protobuf/proto"
 
 import io "io"
-import fmt "fmt"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
+var _ = fmt.Errorf
 var _ = math.Inf
 
 // / A ValueMetric indicates the value of a metric at an instant in time.
@@ -26,9 +26,10 @@ type ValueMetric struct {
 	XXX_unrecognized []byte   `json:"-"`
 }
 
-func (m *ValueMetric) Reset()         { *m = ValueMetric{} }
-func (m *ValueMetric) String() string { return proto.CompactTextString(m) }
-func (*ValueMetric) ProtoMessage()    {}
+func (m *ValueMetric) Reset()                    { *m = ValueMetric{} }
+func (m *ValueMetric) String() string            { return proto.CompactTextString(m) }
+func (*ValueMetric) ProtoMessage()               {}
+func (*ValueMetric) Descriptor() ([]byte, []int) { return fileDescriptorMetric, []int{0} }
 
 func (m *ValueMetric) GetName() string {
 	if m != nil && m.Name != nil {
@@ -59,9 +60,10 @@ type CounterEvent struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *CounterEvent) Reset()         { *m = CounterEvent{} }
-func (m *CounterEvent) String() string { return proto.CompactTextString(m) }
-func (*CounterEvent) ProtoMessage()    {}
+func (m *CounterEvent) Reset()                    { *m = CounterEvent{} }
+func (m *CounterEvent) String() string            { return proto.CompactTextString(m) }
+func (*CounterEvent) ProtoMessage()               {}
+func (*CounterEvent) Descriptor() ([]byte, []int) { return fileDescriptorMetric, []int{1} }
 
 func (m *CounterEvent) GetName() string {
 	if m != nil && m.Name != nil {
@@ -91,12 +93,15 @@ type ContainerMetric struct {
 	CpuPercentage    *float64 `protobuf:"fixed64,3,req,name=cpuPercentage" json:"cpuPercentage,omitempty"`
 	MemoryBytes      *uint64  `protobuf:"varint,4,req,name=memoryBytes" json:"memoryBytes,omitempty"`
 	DiskBytes        *uint64  `protobuf:"varint,5,req,name=diskBytes" json:"diskBytes,omitempty"`
+	MemoryBytesQuota *uint64  `protobuf:"varint,6,opt,name=memoryBytesQuota" json:"memoryBytesQuota,omitempty"`
+	DiskBytesQuota   *uint64  `protobuf:"varint,7,opt,name=diskBytesQuota" json:"diskBytesQuota,omitempty"`
 	XXX_unrecognized []byte   `json:"-"`
 }
 
-func (m *ContainerMetric) Reset()         { *m = ContainerMetric{} }
-func (m *ContainerMetric) String() string { return proto.CompactTextString(m) }
-func (*ContainerMetric) ProtoMessage()    {}
+func (m *ContainerMetric) Reset()                    { *m = ContainerMetric{} }
+func (m *ContainerMetric) String() string            { return proto.CompactTextString(m) }
+func (*ContainerMetric) ProtoMessage()               {}
+func (*ContainerMetric) Descriptor() ([]byte, []int) { return fileDescriptorMetric, []int{2} }
 
 func (m *ContainerMetric) GetApplicationId() string {
 	if m != nil && m.ApplicationId != nil {
@@ -133,6 +138,25 @@ func (m *ContainerMetric) GetDiskBytes() uint64 {
 	return 0
 }
 
+func (m *ContainerMetric) GetMemoryBytesQuota() uint64 {
+	if m != nil && m.MemoryBytesQuota != nil {
+		return *m.MemoryBytesQuota
+	}
+	return 0
+}
+
+func (m *ContainerMetric) GetDiskBytesQuota() uint64 {
+	if m != nil && m.DiskBytesQuota != nil {
+		return *m.DiskBytesQuota
+	}
+	return 0
+}
+
+func init() {
+	proto.RegisterType((*ValueMetric)(nil), "events.ValueMetric")
+	proto.RegisterType((*CounterEvent)(nil), "events.CounterEvent")
+	proto.RegisterType((*ContainerMetric)(nil), "events.ContainerMetric")
+}
 func (m *ValueMetric) Marshal() (data []byte, err error) {
 	size := m.Size()
 	data = make([]byte, size)
@@ -161,7 +185,7 @@ func (m *ValueMetric) MarshalTo(data []byte) (int, error) {
 	} else {
 		data[i] = 0x11
 		i++
-		i = encodeFixed64Metric(data, i, uint64(math.Float64bits(*m.Value)))
+		i = encodeFixed64Metric(data, i, uint64(math.Float64bits(float64(*m.Value))))
 	}
 	if m.Unit == nil {
 		return 0, github_com_gogo_protobuf_proto.NewRequiredNotSetError("unit")
@@ -253,7 +277,7 @@ func (m *ContainerMetric) MarshalTo(data []byte) (int, error) {
 	} else {
 		data[i] = 0x19
 		i++
-		i = encodeFixed64Metric(data, i, uint64(math.Float64bits(*m.CpuPercentage)))
+		i = encodeFixed64Metric(data, i, uint64(math.Float64bits(float64(*m.CpuPercentage))))
 	}
 	if m.MemoryBytes == nil {
 		return 0, github_com_gogo_protobuf_proto.NewRequiredNotSetError("memoryBytes")
@@ -268,6 +292,16 @@ func (m *ContainerMetric) MarshalTo(data []byte) (int, error) {
 		data[i] = 0x28
 		i++
 		i = encodeVarintMetric(data, i, uint64(*m.DiskBytes))
+	}
+	if m.MemoryBytesQuota != nil {
+		data[i] = 0x30
+		i++
+		i = encodeVarintMetric(data, i, uint64(*m.MemoryBytesQuota))
+	}
+	if m.DiskBytesQuota != nil {
+		data[i] = 0x38
+		i++
+		i = encodeVarintMetric(data, i, uint64(*m.DiskBytesQuota))
 	}
 	if m.XXX_unrecognized != nil {
 		i += copy(data[i:], m.XXX_unrecognized)
@@ -360,6 +394,12 @@ func (m *ContainerMetric) Size() (n int) {
 	if m.DiskBytes != nil {
 		n += 1 + sovMetric(uint64(*m.DiskBytes))
 	}
+	if m.MemoryBytesQuota != nil {
+		n += 1 + sovMetric(uint64(*m.MemoryBytesQuota))
+	}
+	if m.DiskBytesQuota != nil {
+		n += 1 + sovMetric(uint64(*m.DiskBytesQuota))
+	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
 	}
@@ -384,8 +424,12 @@ func (m *ValueMetric) Unmarshal(data []byte) error {
 	l := len(data)
 	iNdEx := 0
 	for iNdEx < l {
+		preIndex := iNdEx
 		var wire uint64
 		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMetric
+			}
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
@@ -398,6 +442,12 @@ func (m *ValueMetric) Unmarshal(data []byte) error {
 		}
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ValueMetric: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ValueMetric: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
@@ -405,6 +455,9 @@ func (m *ValueMetric) Unmarshal(data []byte) error {
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMetric
+				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
@@ -453,6 +506,9 @@ func (m *ValueMetric) Unmarshal(data []byte) error {
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMetric
+				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
@@ -476,15 +532,7 @@ func (m *ValueMetric) Unmarshal(data []byte) error {
 			iNdEx = postIndex
 			hasFields[0] |= uint64(0x00000004)
 		default:
-			var sizeOfWire int
-			for {
-				sizeOfWire++
-				wire >>= 7
-				if wire == 0 {
-					break
-				}
-			}
-			iNdEx -= sizeOfWire
+			iNdEx = preIndex
 			skippy, err := skipMetric(data[iNdEx:])
 			if err != nil {
 				return err
@@ -509,6 +557,9 @@ func (m *ValueMetric) Unmarshal(data []byte) error {
 		return github_com_gogo_protobuf_proto.NewRequiredNotSetError("unit")
 	}
 
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
 	return nil
 }
 func (m *CounterEvent) Unmarshal(data []byte) error {
@@ -516,8 +567,12 @@ func (m *CounterEvent) Unmarshal(data []byte) error {
 	l := len(data)
 	iNdEx := 0
 	for iNdEx < l {
+		preIndex := iNdEx
 		var wire uint64
 		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMetric
+			}
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
@@ -530,6 +585,12 @@ func (m *CounterEvent) Unmarshal(data []byte) error {
 		}
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: CounterEvent: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: CounterEvent: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
@@ -537,6 +598,9 @@ func (m *CounterEvent) Unmarshal(data []byte) error {
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMetric
+				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
@@ -565,6 +629,9 @@ func (m *CounterEvent) Unmarshal(data []byte) error {
 			}
 			var v uint64
 			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMetric
+				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
@@ -583,6 +650,9 @@ func (m *CounterEvent) Unmarshal(data []byte) error {
 			}
 			var v uint64
 			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMetric
+				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
@@ -595,15 +665,7 @@ func (m *CounterEvent) Unmarshal(data []byte) error {
 			}
 			m.Total = &v
 		default:
-			var sizeOfWire int
-			for {
-				sizeOfWire++
-				wire >>= 7
-				if wire == 0 {
-					break
-				}
-			}
-			iNdEx -= sizeOfWire
+			iNdEx = preIndex
 			skippy, err := skipMetric(data[iNdEx:])
 			if err != nil {
 				return err
@@ -625,6 +687,9 @@ func (m *CounterEvent) Unmarshal(data []byte) error {
 		return github_com_gogo_protobuf_proto.NewRequiredNotSetError("delta")
 	}
 
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
 	return nil
 }
 func (m *ContainerMetric) Unmarshal(data []byte) error {
@@ -632,8 +697,12 @@ func (m *ContainerMetric) Unmarshal(data []byte) error {
 	l := len(data)
 	iNdEx := 0
 	for iNdEx < l {
+		preIndex := iNdEx
 		var wire uint64
 		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMetric
+			}
 			if iNdEx >= l {
 				return io.ErrUnexpectedEOF
 			}
@@ -646,6 +715,12 @@ func (m *ContainerMetric) Unmarshal(data []byte) error {
 		}
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ContainerMetric: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ContainerMetric: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
@@ -653,6 +728,9 @@ func (m *ContainerMetric) Unmarshal(data []byte) error {
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMetric
+				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
@@ -681,6 +759,9 @@ func (m *ContainerMetric) Unmarshal(data []byte) error {
 			}
 			var v int32
 			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMetric
+				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
@@ -719,6 +800,9 @@ func (m *ContainerMetric) Unmarshal(data []byte) error {
 			}
 			var v uint64
 			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMetric
+				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
@@ -737,6 +821,9 @@ func (m *ContainerMetric) Unmarshal(data []byte) error {
 			}
 			var v uint64
 			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMetric
+				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
 				}
@@ -749,16 +836,48 @@ func (m *ContainerMetric) Unmarshal(data []byte) error {
 			}
 			m.DiskBytes = &v
 			hasFields[0] |= uint64(0x00000010)
-		default:
-			var sizeOfWire int
-			for {
-				sizeOfWire++
-				wire >>= 7
-				if wire == 0 {
+		case 6:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MemoryBytesQuota", wireType)
+			}
+			var v uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMetric
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := data[iNdEx]
+				iNdEx++
+				v |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
 					break
 				}
 			}
-			iNdEx -= sizeOfWire
+			m.MemoryBytesQuota = &v
+		case 7:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DiskBytesQuota", wireType)
+			}
+			var v uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMetric
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := data[iNdEx]
+				iNdEx++
+				v |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.DiskBytesQuota = &v
+		default:
+			iNdEx = preIndex
 			skippy, err := skipMetric(data[iNdEx:])
 			if err != nil {
 				return err
@@ -789,6 +908,9 @@ func (m *ContainerMetric) Unmarshal(data []byte) error {
 		return github_com_gogo_protobuf_proto.NewRequiredNotSetError("diskBytes")
 	}
 
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
 	return nil
 }
 func skipMetric(data []byte) (n int, err error) {
@@ -797,6 +919,9 @@ func skipMetric(data []byte) (n int, err error) {
 	for iNdEx < l {
 		var wire uint64
 		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return 0, ErrIntOverflowMetric
+			}
 			if iNdEx >= l {
 				return 0, io.ErrUnexpectedEOF
 			}
@@ -810,7 +935,10 @@ func skipMetric(data []byte) (n int, err error) {
 		wireType := int(wire & 0x7)
 		switch wireType {
 		case 0:
-			for {
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return 0, ErrIntOverflowMetric
+				}
 				if iNdEx >= l {
 					return 0, io.ErrUnexpectedEOF
 				}
@@ -826,6 +954,9 @@ func skipMetric(data []byte) (n int, err error) {
 		case 2:
 			var length int
 			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return 0, ErrIntOverflowMetric
+				}
 				if iNdEx >= l {
 					return 0, io.ErrUnexpectedEOF
 				}
@@ -846,6 +977,9 @@ func skipMetric(data []byte) (n int, err error) {
 				var innerWire uint64
 				var start int = iNdEx
 				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return 0, ErrIntOverflowMetric
+					}
 					if iNdEx >= l {
 						return 0, io.ErrUnexpectedEOF
 					}
@@ -881,4 +1015,34 @@ func skipMetric(data []byte) (n int, err error) {
 
 var (
 	ErrInvalidLengthMetric = fmt.Errorf("proto: negative length found during unmarshaling")
+	ErrIntOverflowMetric   = fmt.Errorf("proto: integer overflow")
 )
+
+func init() { proto.RegisterFile("metric.proto", fileDescriptorMetric) }
+
+var fileDescriptorMetric = []byte{
+	// 357 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0x74, 0x92, 0xd1, 0x4a, 0x23, 0x31,
+	0x14, 0x86, 0x99, 0x6e, 0xdb, 0xa5, 0x69, 0xbb, 0xbb, 0x84, 0xbd, 0x18, 0xca, 0xb2, 0x74, 0xcb,
+	0x22, 0x22, 0x38, 0x7d, 0x03, 0x2f, 0x5a, 0x14, 0x8a, 0x28, 0x3a, 0x17, 0xde, 0xa7, 0x49, 0x3a,
+	0x06, 0x67, 0x92, 0x21, 0x73, 0x52, 0xec, 0x93, 0xf8, 0x4a, 0x5e, 0xfa, 0x08, 0xe2, 0x93, 0x98,
+	0x9c, 0x14, 0x6d, 0x15, 0x2f, 0x06, 0xce, 0xff, 0x9d, 0x3f, 0x7f, 0xce, 0x09, 0x43, 0x06, 0x95,
+	0x04, 0xab, 0x78, 0x56, 0x5b, 0x03, 0x86, 0x76, 0xe5, 0x5a, 0x6a, 0x68, 0x46, 0xc7, 0x85, 0x82,
+	0x5b, 0xb7, 0xcc, 0xb8, 0xa9, 0xa6, 0x85, 0x29, 0xcc, 0x14, 0xdb, 0x4b, 0xb7, 0x42, 0x85, 0x02,
+	0xab, 0x78, 0x6c, 0x44, 0x9c, 0x53, 0x22, 0xd6, 0x93, 0x73, 0xd2, 0xbf, 0x61, 0xa5, 0x93, 0x17,
+	0x98, 0x4b, 0x29, 0x69, 0x6b, 0x56, 0xc9, 0x34, 0x19, 0xb7, 0x0e, 0x7b, 0x39, 0xd6, 0xf4, 0x37,
+	0xe9, 0xac, 0x83, 0x25, 0x6d, 0x79, 0x98, 0xe4, 0x51, 0x04, 0xa7, 0xd3, 0x0a, 0xd2, 0x6f, 0xd1,
+	0x19, 0xea, 0xc9, 0x25, 0x19, 0xcc, 0x8d, 0xd3, 0x20, 0xed, 0x69, 0x18, 0xec, 0xab, 0x34, 0x21,
+	0x4b, 0x60, 0x98, 0xd6, 0xce, 0xa3, 0x08, 0x14, 0x0c, 0xb0, 0xd2, 0xc7, 0x25, 0x81, 0xa2, 0x98,
+	0x3c, 0xb4, 0xc8, 0xcf, 0xb9, 0xd1, 0xc0, 0x94, 0x96, 0x76, 0x3b, 0xe1, 0x7f, 0x32, 0x64, 0x75,
+	0x5d, 0x2a, 0xce, 0x40, 0x19, 0xbd, 0x10, 0xdb, 0xf0, 0x7d, 0x18, 0x5c, 0x4a, 0x37, 0xc0, 0x34,
+	0x97, 0x0b, 0x2d, 0xe4, 0x3d, 0xde, 0xd6, 0xc9, 0xf7, 0x61, 0x70, 0xf1, 0xda, 0x5d, 0x49, 0xcb,
+	0xfd, 0xb4, 0xac, 0x90, 0xb8, 0x4c, 0x92, 0xef, 0x43, 0x3a, 0x26, 0xfd, 0x4a, 0x56, 0xc6, 0x6e,
+	0x66, 0x1b, 0x90, 0x4d, 0xda, 0xc6, 0xb9, 0x77, 0x11, 0xfd, 0x43, 0x7a, 0x42, 0x35, 0x77, 0xb1,
+	0xdf, 0xc1, 0xfe, 0x3b, 0xa0, 0x47, 0xe4, 0xd7, 0x8e, 0xf9, 0xda, 0xf9, 0xd5, 0xd2, 0x2e, 0xae,
+	0xf9, 0x89, 0xd3, 0x03, 0xf2, 0xe3, 0xed, 0x60, 0x74, 0x7e, 0x47, 0xe7, 0x07, 0x3a, 0x3b, 0x79,
+	0x7c, 0xf9, 0x9b, 0x3c, 0xf9, 0xef, 0xd9, 0x7f, 0xe4, 0x9f, 0xb1, 0x45, 0xc6, 0x4b, 0xe3, 0xc4,
+	0xca, 0x3f, 0xbf, 0xb0, 0x9b, 0x4c, 0x58, 0x53, 0x37, 0xc6, 0x2f, 0x99, 0xc5, 0x5f, 0x64, 0x36,
+	0x8c, 0xcf, 0x77, 0xc6, 0x38, 0xf8, 0x1b, 0x5f, 0x03, 0x00, 0x00, 0xff, 0xff, 0xc6, 0xbe, 0x10,
+	0xbe, 0x48, 0x02, 0x00, 0x00,
+}
