@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"errors"
 	"log"
 
 	"github.com/amir/raidman"
@@ -33,16 +32,8 @@ type metricKey struct {
 }
 
 type metricValue struct {
-	tags   []string
-	points []Point
-}
-
-type Metric struct {
-	Metric string   `json:"metric"`
-	Points []Point  `json:"points"`
-	Type   string   `json:"type"`
-	Host   string   `json:"host,omitempty"`
-	Tags   []string `json:"tags,omitempty"`
+	points     []Point
+	attributes map[string]string
 }
 
 type Point struct {
@@ -52,9 +43,9 @@ type Point struct {
 
 func New(host string, port string, transport string, prefix string, deployment string, ip string) *Client {
 	return &Client{
-		host: host,
-		port: port,
-		transport: transport,
+		host:         host,
+		port:         port,
+		transport:    transport,
 		metricPoints: make(map[metricKey]metricValue),
 		prefix:       prefix,
 		deployment:   deployment,
@@ -84,7 +75,7 @@ func (c *Client) AddMetric(envelope *events.Envelope) {
 	mVal := c.metricPoints[key]
 	value := getValue(envelope)
 
-	mVal.tags = getTags(envelope)
+	mVal.attributes = getAttributes(envelope)
 	mVal.points = append(mVal.points, Point{
 		Timestamp: envelope.GetTimestamp() / int64(time.Second),
 		Value:     value,
@@ -135,16 +126,16 @@ func (c *Client) containsSlowConsumerAlert() bool {
 	return ok
 }
 
-func (c *Client) formatMetrics() ([]*raidman.Event) {
+func (c *Client) formatMetrics() []*raidman.Event {
 	metrics := []*raidman.Event{}
 
 	for key, metric := range c.metricPoints {
 		for _, point := range metric.points {
 			metrics = append(metrics, &raidman.Event{
-				Service: key.name,
-				Time: point.Timestamp,
-				Metric: point.Value,
-				Tags: metric.tags,
+				Service:    c.prefix + key.name,
+				Time:       point.Timestamp,
+				Metric:     point.Value,
+				Attributes: metric.attributes,
 			})
 		}
 	}
@@ -177,9 +168,9 @@ func (c *Client) addInternalMetric(name string, value uint64) {
 	}
 
 	mValue := metricValue{
-		tags: []string{
-			fmt.Sprintf("ip=%s", c.ip),
-			fmt.Sprintf("deployment=%s", c.deployment),
+		attributes: map[string]string{
+			"ip":         c.ip,
+			"deployment": c.deployment,
 		},
 		points: []Point{point},
 	}
@@ -209,42 +200,20 @@ func getValue(envelope *events.Envelope) float64 {
 	}
 }
 
-func getTags(envelope *events.Envelope) []string {
-	var tags []string
+func getAttributes(envelope *events.Envelope) map[string]string {
+	attributes := make(map[string]string)
 
-	tags = appendTagIfNotEmpty(tags, "deployment", envelope.GetDeployment())
-	tags = appendTagIfNotEmpty(tags, "job", envelope.GetJob())
-	tags = appendTagIfNotEmpty(tags, "index", envelope.GetIndex())
-	tags = appendTagIfNotEmpty(tags, "ip", envelope.GetIp())
+	attributes = appendAttributeIfNotEmpty(attributes, "deployment", envelope.GetDeployment())
+	attributes = appendAttributeIfNotEmpty(attributes, "job", envelope.GetJob())
+	attributes = appendAttributeIfNotEmpty(attributes, "index", envelope.GetIndex())
+	attributes = appendAttributeIfNotEmpty(attributes, "ip", envelope.GetIp())
 
-	return tags
+	return attributes
 }
 
-func appendTagIfNotEmpty(tags []string, key string, value string) []string {
+func appendAttributeIfNotEmpty(attributes map[string]string, key string, value string) map[string]string {
 	if value != "" {
-		tags = append(tags, fmt.Sprintf("%s=%s", key, value))
+		attributes[key] = value
 	}
-	return tags
-}
-
-func (p Point) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf(`[%d, %f]`, p.Timestamp, p.Value)), nil
-}
-
-func (p *Point) UnmarshalJSON(in []byte) error {
-	var timestamp int64
-	var value float64
-
-	parsed, err := fmt.Sscanf(string(in), `[%d,%f]`, &timestamp, &value)
-	if err != nil {
-		return err
-	}
-	if parsed != 2 {
-		return errors.New("expected two parsed values")
-	}
-
-	p.Timestamp = timestamp
-	p.Value = value
-
-	return nil
+	return attributes
 }
