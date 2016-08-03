@@ -3,12 +3,11 @@ package riemannfirehosenozzle
 import (
 	"crypto/tls"
 	"log"
-	//"os"
 	"time"
 
 	"github.com/18F/riemann-firehose-nozzle/nozzleconfig"
 	"github.com/18F/riemann-firehose-nozzle/riemannclient"
-	"github.com/cloudfoundry/noaa"
+	"github.com/cloudfoundry/noaa/consumer"
 	"github.com/cloudfoundry/sonde-go/events"
 	"github.com/gorilla/websocket"
 	"github.com/pivotal-golang/localip"
@@ -16,10 +15,10 @@ import (
 
 type RiemannFirehoseNozzle struct {
 	config           *nozzleconfig.NozzleConfig
-	errs             chan error
-	messages         chan *events.Envelope
+	errs             <-chan error
+	messages         <-chan *events.Envelope
 	authTokenFetcher AuthTokenFetcher
-	consumer         *noaa.Consumer
+	consumer         *consumer.Consumer
 	client           *riemannclient.Client
 }
 
@@ -30,8 +29,6 @@ type AuthTokenFetcher interface {
 func NewRiemannFirehoseNozzle(config *nozzleconfig.NozzleConfig, tokenFetcher AuthTokenFetcher) *RiemannFirehoseNozzle {
 	return &RiemannFirehoseNozzle{
 		config:           config,
-		errs:             make(chan error),
-		messages:         make(chan *events.Envelope),
 		authTokenFetcher: tokenFetcher,
 	}
 }
@@ -62,12 +59,12 @@ func (d *RiemannFirehoseNozzle) createClient() {
 }
 
 func (d *RiemannFirehoseNozzle) consumeFirehose(authToken string) {
-	d.consumer = noaa.NewConsumer(
+	d.consumer = consumer.New(
 		d.config.TrafficControllerURL,
 		&tls.Config{InsecureSkipVerify: d.config.InsecureSSLSkipVerify},
 		nil)
 	d.consumer.SetIdleTimeout(time.Duration(d.config.IdleTimeoutSeconds) * time.Second)
-	go d.consumer.Firehose(d.config.FirehoseSubscriptionID, authToken, d.messages, d.errs)
+	d.messages, d.errs = d.consumer.Firehose(d.config.FirehoseSubscriptionID, authToken)
 }
 
 func (d *RiemannFirehoseNozzle) postToRiemann() error {
