@@ -1,9 +1,7 @@
 ---
 applications:
-- name: influxdb-firehose-nozzle
+- name: riemann-firehose-nozzle
+  buildpack: go_buildpack
   no-route: true
   memory: 512M
   instances: 2
-  host: influxdb-firehose-nozzle
-  domain: apps.cloud.gov
-  buildpack: https://github.com/cloudfoundry/go-buildpack.git
