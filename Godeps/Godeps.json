@@ -1,7 +1,7 @@
 {
 	"ImportPath": "github.com/18F/riemann-firehose-nozzle",
 	"GoVersion": "go1.5.3",
-	"GodepVersion": "v62",
+	"GodepVersion": "v67",
 	"Packages": [
 		"."
 	],
@@ -20,6 +20,14 @@
 		},
 		{
 			"ImportPath": "github.com/cloudfoundry/noaa",
+			"Rev": "0ca0d30d65c7422750132450593d402428dd2273"
+		},
+		{
+			"ImportPath": "github.com/cloudfoundry/noaa/consumer",
+			"Rev": "0ca0d30d65c7422750132450593d402428dd2273"
+		},
+		{
+			"ImportPath": "github.com/cloudfoundry/noaa/consumer/internal",
 			"Rev": "0ca0d30d65c7422750132450593d402428dd2273"
 		},
 		{
