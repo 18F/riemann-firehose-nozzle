@@ -207,6 +207,7 @@ func getAttributes(envelope *events.Envelope) map[string]string {
 	attributes = appendAttributeIfNotEmpty(attributes, "job", envelope.GetJob())
 	attributes = appendAttributeIfNotEmpty(attributes, "index", envelope.GetIndex())
 	attributes = appendAttributeIfNotEmpty(attributes, "ip", envelope.GetIp())
+	attributes = appendAttributeIfNotEmpty(attributes, "event_type", fmt.Sprintf("%+v", envelope.GetEventType()))
 
 	return attributes
 }
