@@ -212,10 +212,6 @@ func getAttributes(envelope *events.Envelope) map[string]string {
 	return attributes
 }
 
-func getTags(envelope *events.Envelope) []string {
-	return []string{fmt.Sprintf("%+v", envelope.GetEventType())}
-}
-
 func appendAttributeIfNotEmpty(attributes map[string]string, key string, value string) map[string]string {
 	if value != "" {
 		attributes[key] = value
