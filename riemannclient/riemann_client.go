@@ -34,7 +34,6 @@ type metricKey struct {
 type metricValue struct {
 	points     []Point
 	attributes map[string]string
-	tags       []string
 }
 
 type Point struct {
@@ -77,7 +76,6 @@ func (c *Client) AddMetric(envelope *events.Envelope) {
 	value := getValue(envelope)
 
 	mVal.attributes = getAttributes(envelope)
-	mVal.tags = getTags(envelope)
 	mVal.points = append(mVal.points, Point{
 		Timestamp: envelope.GetTimestamp() / int64(time.Second),
 		Value:     value,
@@ -138,7 +136,6 @@ func (c *Client) formatMetrics() []*raidman.Event {
 				Time:       point.Timestamp,
 				Metric:     point.Value,
 				Attributes: metric.attributes,
-				Tags:       metric.tags,
 			})
 		}
 	}
@@ -175,9 +172,6 @@ func (c *Client) addInternalMetric(name string, value uint64) {
 			"ip":         c.ip,
 			"deployment": c.deployment,
 		},
-		tags: []string{
-			"internal",
-		},
 		points: []Point{point},
 	}
 
@@ -213,6 +207,7 @@ func getAttributes(envelope *events.Envelope) map[string]string {
 	attributes = appendAttributeIfNotEmpty(attributes, "job", envelope.GetJob())
 	attributes = appendAttributeIfNotEmpty(attributes, "index", envelope.GetIndex())
 	attributes = appendAttributeIfNotEmpty(attributes, "ip", envelope.GetIp())
+	attributes = appendAttributeIfNotEmpty(attributes, "event_type", fmt.Sprintf("%+v", envelope.GetEventType()))
 
 	return attributes
 }
