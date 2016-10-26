@@ -2,6 +2,7 @@
 applications:
 - name: riemann-firehose-nozzle
   buildpack: go_buildpack
+  health-check-type: none
   no-route: true
   memory: 512M
   instances: 2

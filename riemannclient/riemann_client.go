@@ -143,18 +143,6 @@ func (c *Client) formatMetrics() []*raidman.Event {
 	return metrics
 }
 
-func formatTags(tags []string) string {
-	var newTags string
-	for index, tag := range tags {
-		if index > 0 {
-			newTags += ","
-		}
-
-		newTags += tag
-	}
-	return newTags
-}
-
 func (c *Client) addInternalMetric(name string, value uint64) {
 	key := metricKey{
 		name:       name,
